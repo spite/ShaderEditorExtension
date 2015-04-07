@@ -1,6 +1,6 @@
 # WebGL GLSL Shader Editor Extension for Google Chrome
 
-A Chrome DevTools extension to help you edit shaders live in the browser. Very much based on Firefox DevTools Shader Editor.
+A Chrome DevTools extension to help you edit shaders live in the browser. Very much based on Firefox DevTools Shader Editor. [Here's a video showing it in action](http://www.youtube.com/watch?v=nPcUH3b3pFY)
 
 ![Shader Editor](/about/snapshot.jpg)
 
