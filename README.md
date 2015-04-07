@@ -4,6 +4,8 @@ A Chrome DevTools extension to help you edit shaders live in the browser. Very m
 
 ![Shader Editor](/about/snapshot.png)
 
+[Download the extension (.crx)](/extension/ShaderEditor.crx)
+
 ### How to install ###
 
 While in beta, you can load the extension from disk directly:
@@ -35,8 +37,6 @@ If the shader code is obfuscated, you can click on the Autoformat button.
 Changing stuff in several places probably isn't tracked correctly, so if you edit a shader and the JavaScript in the page also edits it, there'll be weird side-effects.
 
 **More importantly: the shader compiling and testing is done with a separate WebGLRenderingContext, so is the page is using extensions, the shader won't compile.** The solution is either track the .getExtension method and reproduce it in the extension GL context, or pass the testing to the injected library.
-
-Browsing to another page doesn't clean the list of programs.
 
 ### TO-DO ###
 
