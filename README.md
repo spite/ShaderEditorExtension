@@ -4,7 +4,9 @@ A Chrome DevTools extension to help you edit shaders live in the browser. Very m
 
 ![Shader Editor](/about/snapshot.jpg)
 
-[Download the extension (.crx)](/extension/ShaderEditor.crx)
+[Install the extension from the Chrome Store](https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob)
+
+Alternatively [download the extension (.crx)](/extension/ShaderEditor.crx)
 
 ### How to install ###
 
