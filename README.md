@@ -48,6 +48,7 @@ Changing stuff in several places probably isn't tracked correctly, so if you edi
 
 As always: forks, pull requests and code critiques are welcome!
 
+- Detect when the page is reloaded or changed [Issue #1](https://github.com/spite/ShaderEditorExtension/issues/1)
 - Highlight shaders when hovering over list item
 - Check why some pages don't load (like http://david.li/flow/)
 - Figure out why it doesn't work on Android over remote debugging
