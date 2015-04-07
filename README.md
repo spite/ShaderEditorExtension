@@ -2,7 +2,7 @@
 
 A Chrome DevTools extension to help you edit shaders live in the browser. Very much based on Firefox DevTools Shader Editor.
 
-![Shader Editor](/about/snapshot.png)
+![Shader Editor](/about/snapshot.jpg)
 
 [Download the extension (.crx)](/extension/ShaderEditor.crx)
 
