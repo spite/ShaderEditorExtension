@@ -22,10 +22,12 @@ body{ background-color: #f7f7f7;}
 #vs-footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; padding: 5px 5px;}
 #fs-footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; padding: 5px 5px;}
 .errorMessage{ background-color: red; padding: 5px;}
-#info{ text-align: center; position: absolute; left: 50%; top: 50%; transform: translate3d( -50%, -50%, 0 );}
+#info{ color: #404040; text-align: center; position: absolute; left: 50%; top: 50%; transform: translate3d( -50%, -50%, 0 );}
 #info h1{ margin-bottom: 1em;}
 #info p{ margin-bottom: 1em; line-height: 1.4em}
 #info button{ margin-bottom: 1em;}
+#info a{ color: #4c9ed9; }
+#info a:hover{ color: #202020;}
 .go-fullscreen{ background-image: url( assets/fs.svg ); width: 15px; height: 15px; display: block; position: absolute; top: 5px; right: 5px; background-size: 15px 15px; cursor: pointer; }
 .fullscreen .go-fullscreen{ background-image: url( assets/fs_exit.svg ); }
 .go-format{ background-image: url( assets/format.svg ); width: 15px; height: 15px; display: block; position: absolute; top: 5px; right: 25px; background-size: 15px 15px; cursor: pointer; }
@@ -40,7 +42,7 @@ body{ background-color: #f7f7f7;}
 	<h1>WebGL GLSL shader editor extension<br/>v1.0 (beta)</h1>
 	<p>To start tracking the WebGL context,<br/>the extension needs to reload the page.</p>
 	<button id="reload" >Reload</button>
-	<p>Bugs, ideas and feedback: <a rel="external" href="https://github.com/spite/ShaderEditorExtension">GitHub page</a></p>
+	<p>Bugs, ideas and feedback: <a rel="external" href="https://github.com/spite/ShaderEditorExtension">GitHub page</a><br/><a rel="external" href="https://twitter.com/thespite" >@thespite</a> | <a rel="external" href="http://www.clicktorelease.com" >www.clicktorelease.com</a></p>
 </div>
 <div id="container" >
 	<ul id="list">
