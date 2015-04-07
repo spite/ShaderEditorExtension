@@ -327,6 +327,15 @@ function f() {
 		} 
 	);
 
+	WebGLRenderingContext.prototype.getExtension = _h( 
+		WebGLRenderingContext.prototype.getExtension, 
+		function( res, args ) {
+
+			window.postMessage( { source: 'WebGLShaderEditor', method: 'getExtension', extension: args[ 0 ] }, '*');	
+
+		} 
+	);
+
 	function findProgramByLocation( location ) {
 
 		var f = null;
@@ -518,12 +527,13 @@ function selectProgram( li ) {
 
 backgroundPageConnection.onMessage.addListener( function( msg ) {
 
-	//console.log( msg.method );
-
 	switch( msg.method ) {
 		case 'init':
 			info.style.display = 'none';
 			container.style.display = 'block';
+			break;
+		case 'getExtension':
+			gl.getExtension( msg.extension );
 			break;
 		case 'addProgram' :
 			info.style.display = 'none';

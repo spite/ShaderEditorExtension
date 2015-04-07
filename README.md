@@ -36,11 +36,13 @@ You can expand the editor area by clicking the Fullscreen button on the bottom r
 
 If the shader code is obfuscated, you can click on the Autoformat button.
 
+Enabling extensions is mirrored in the environment to test shaders.
+
 ### Stuff that doesn't work ####
 
 Changing stuff in several places probably isn't tracked correctly, so if you edit a shader and the JavaScript in the page also edits it, there'll be weird side-effects.
 
-**More importantly: the shader compiling and testing is done with a separate ``WebGLRenderingContext``, so is the page is using extensions, the shader won't compile.** The solution is either track the ``.getExtension`` method and reproduce it in the extension GL context, or pass the testing to the injected library.
+~~**More importantly: the shader compiling and testing is done with a separate ``WebGLRenderingContext``, so is the page is using extensions, the shader won't compile.** The solution is either track the ``.getExtension`` method and reproduce it in the extension GL context, or pass the testing to the injected library.~~
 
 ### TO-DO ###
 
