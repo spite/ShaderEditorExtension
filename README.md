@@ -16,7 +16,7 @@ While in beta, you can load the extension from disk directly:
 - Checkout the repo
 - Open Chrome's Extensions page (``Settings / More tools / Extensions``)
 - Enable ``Developer Mode``
-- Click on ``Load unpacked extension``...
+- Click on ``Load unpacked extension`...
 - Select the folder /src in the checked out project
 
 Alternatively, you can pack the extension yourself and load by dropping the .crx file in the Extensions page.
@@ -51,6 +51,7 @@ As always: forks, pull requests and code critiques are welcome!
 - Highlight shaders when hovering over list item
 - Check why some pages don't load (like http://david.li/flow/)
 - Figure out why it doesn't work on Android over remote debugging
+- Figure out why it doesn't .postMessage the first time it's injected
 - Save to disk (?)
 - Add uniform tracking to display values fed to the shader
 - Integrating @zz85's GLSL Optimizer? (https://github.com/zz85/glsl-optimizer)
