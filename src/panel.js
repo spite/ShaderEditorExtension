@@ -37,6 +37,7 @@ function f() {
 	var _gl = document.createElement( 'canvas' ).getContext( 'webgl' );
 
 	keepReference( 'getUniformLocation' );
+	keepReference( 'shaderSource' );
 
 	function testShader( type, source, code ) {
 
@@ -176,10 +177,10 @@ function f() {
 			
 	}
 
-	function update() {
+	function update( vs, fs ) {
 
-		log( 'UPDATE' );
 		if( !currentProgram ) return;
+		log( 'UPDATE' );
 
 		var gl = currentProgram.gl,
 			program = currentProgram.program,
@@ -200,8 +201,8 @@ function f() {
 		//if( !testShader( gl.VERTEX_SHADER, vsSource ) ) return false;
 		//if( !testShader( gl.FRAGMENT_SHADER, fsSource ) ) return false;
 		
-		gl.shaderSource( vertexShader, vsSource );
-		gl.shaderSource( fragmentShader, fsSource );
+		if( vs ) { references.shaderSource.apply( gl, [ vertexShader, vs ] ); } else { gl.shaderSource( vertexShader, vsSource ); }
+		if( fs ) { references.shaderSource.apply( gl, [ fragmentShader, fs ] ); } else { gl.shaderSource( fragmentShader, fsSource ); }
 
 		gl.compileShader( vertexShader );
 
@@ -402,6 +403,53 @@ function f() {
 
 	}
 
+	window.UIProgramHovered = function( id ) {
+
+		log( 'UIProgramHovered' );
+
+		var p = findProgram( id );
+		selectProgram( p );
+		var gl = p.gl;
+
+		var vertexShader, fragmentShader;
+
+		if( p.shaders[ 0 ].type === gl.VERTEX_SHADER ) vertexShader = p.shaders[ 0 ];
+		if( p.shaders[ 0 ].type === gl.FRAGMENT_SHADER ) fragmentShader = p.shaders[ 0 ];
+		if( p.shaders[ 1 ].type === gl.VERTEX_SHADER ) vertexShader = p.shaders[ 1 ];
+		if( p.shaders[ 1 ].type === gl.FRAGMENT_SHADER ) fragmentShader = p.shaders[ 1 ];
+
+		var vs = vertexShader.source;
+		var fs = fragmentShader.source;
+
+		fs = fs.replace( /[ ]+main[ ]*\(/ig, ' ShaderEditorInternalMain(' );
+		fs += '\r\n' + 'void main() { ShaderEditorInternalMain(); gl_FragColor.gb = vec2( 0. ); }';
+
+		update( vs, fs );
+
+	}
+
+	window.UIProgramOut = function( id ) {
+
+		log( 'UIProgramOut' );
+
+		var p = findProgram( id );
+		selectProgram( p );
+		var gl = p.gl;
+
+		var vertexShader, fragmentShader;
+
+		if( p.shaders[ 0 ].type === gl.VERTEX_SHADER ) vertexShader = p.shaders[ 0 ];
+		if( p.shaders[ 0 ].type === gl.FRAGMENT_SHADER ) fragmentShader = p.shaders[ 0 ];
+		if( p.shaders[ 1 ].type === gl.VERTEX_SHADER ) vertexShader = p.shaders[ 1 ];
+		if( p.shaders[ 1 ].type === gl.FRAGMENT_SHADER ) fragmentShader = p.shaders[ 1 ];
+
+		var vs = vertexShader.source;
+		var fs = fragmentShader.source;
+
+		update( vs, fs );
+
+	}
+
 	window.UIVSUpdate = function( src ) {
 
 		log( 'UPDATE VS' );
@@ -539,10 +587,16 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			info.style.display = 'none';
 			container.style.display = 'block';
 			var li = document.createElement( 'li' );
-			li.textContent = msg.uid;
+			li.textContent = 'Program ' + list.children.length;//msg.uid;
 			li.addEventListener( 'click', function() {
 				selectProgram( this );
 				chrome.devtools.inspectedWindow.eval( 'UIProgramSelected( \'' + msg.uid + '\' )' );
+			} );
+			li.addEventListener( 'mouseover', function() {
+				chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
+			} );
+			li.addEventListener( 'mouseout', function() {
+				chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
 			} );
 			list.appendChild( li );
 			break;
