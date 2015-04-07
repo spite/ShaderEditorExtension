@@ -16,7 +16,7 @@ While in beta, you can load the extension from disk directly:
 - Checkout the repo
 - Open Chrome's Extensions page (``Settings / More tools / Extensions``)
 - Enable ``Developer Mode``
-- Click on ``Load unpacked extension`...
+- Click on ``Load unpacked extension``...
 - Select the folder /src in the checked out project
 
 Alternatively, you can pack the extension yourself and load by dropping the .crx file in the Extensions page.
