@@ -2,6 +2,8 @@ function f() {
 
 //			window.postMessage( { method: 'open', arguments: arguments }, '*');
 
+	//function log() { console.log( arguments ); }
+	//function error() { console.error( arguments ); }
 	function log() {}
 	function error() {}
 
@@ -56,9 +58,9 @@ function f() {
 
 		if ( _gl.getShaderParameter( s, _gl.COMPILE_STATUS ) === false ) {
 
-			var error = _gl.getShaderInfoLog( s );
+			var err = _gl.getShaderInfoLog( s );
 					
-		    if( error==null )
+		    if( err==null )
 		    {
 		        /*this.mForceFrame = true;
 		        if( fromScript==false )
@@ -72,7 +74,7 @@ function f() {
 		        //eleWrapper.className = "errorYes";
 
 		        var lineOffset = 0;//this.mEffect.GetHeaderSize( this.mActiveDoc );
-		        var lines = error.match(/^.*((\r\n|\n|\r)|$)/gm);
+		        var lines = err.match(/^.*((\r\n|\n|\r)|$)/gm);
 		        for( var i=0; i<lines.length; i++ )
 		        {
 		            var parts = lines[i].split(":");
@@ -200,9 +202,11 @@ function f() {
 		
 		//if( !testShader( gl.VERTEX_SHADER, vsSource ) ) return false;
 		//if( !testShader( gl.FRAGMENT_SHADER, fsSource ) ) return false;
+
+		var lineBreak = "\r\n";
 		
-		if( vs ) { references.shaderSource.apply( gl, [ vertexShader, vs ] ); } else { gl.shaderSource( vertexShader, vsSource ); }
-		if( fs ) { references.shaderSource.apply( gl, [ fragmentShader, fs ] ); } else { gl.shaderSource( fragmentShader, fsSource ); }
+		if( vs ) { references.shaderSource.apply( gl, [ vertexShader, vs + lineBreak ] ); } else { gl.shaderSource( vertexShader, vsSource + lineBreak ); }
+		if( fs ) { references.shaderSource.apply( gl, [ fragmentShader, fs + lineBreak ] ); } else { gl.shaderSource( fragmentShader, fsSource + lineBreak ); }
 
 		gl.compileShader( vertexShader );
 
@@ -671,7 +675,7 @@ function testShader( type, source, code ) {
 	if( source === '' ) return;
 
 	var s = gl.createShader( type );
-	gl.shaderSource( s, source );
+	gl.shaderSource( s, source + "\r\n" );
 	gl.compileShader( s );
 
 	while( code._errors.length > 0 ) {
@@ -683,15 +687,15 @@ function testShader( type, source, code ) {
 
 	if ( gl.getShaderParameter( s, gl.COMPILE_STATUS ) === false ) {
 
-		var error = gl.getShaderInfoLog( s );
+		var err = gl.getShaderInfoLog( s );
 
-		if( error==null ) {
+		if( err==null ) {
 		}
 		else
 		{
 
 			var lineOffset = 0;
-			var lines = error.match(/^.*((\r\n|\n|\r)|$)/gm);
+			var lines = err.match(/^.*((\r\n|\n|\r)|$)/gm);
 			for( var i=0; i<lines.length; i++ )
 			{
 				var parts = lines[i].split(":");
@@ -730,7 +734,7 @@ function testShader( type, source, code ) {
 
 	if ( gl.getShaderInfoLog( s ) !== '' ) {
 
-		//error( 'gl.getShaderInfoLog()', gl.getShaderInfoLog( s ) );
+		error( 'gl.getShaderInfoLog()', gl.getShaderInfoLog( s ) );
 		return false;
 
 	}
