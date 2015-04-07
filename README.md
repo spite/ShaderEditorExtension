@@ -66,6 +66,7 @@ Nice to have:
 - v1.0.1 fix extensions not being enabled 
 - v1.0.2 added colour highlighting for hover
 - v1.0.3 rolled back, colouring introducing bugs
+- v1.0.4 fixed some shaders not compiling (issue #4)
 
 #### License ####
 
