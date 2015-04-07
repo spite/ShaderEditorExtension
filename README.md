@@ -52,7 +52,7 @@ As always: forks, pull requests and code critiques are welcome!
 - Highlight shaders when hovering over list item [Issue #3](https://github.com/spite/ShaderEditorExtension/issues/3)
 - Check why some pages don't load (like http://david.li/flow/) [Issue #4](https://github.com/spite/ShaderEditorExtension/issues/4)
 - Figure out why it doesn't work on Android over remote debugging
-- Figure out why it doesn't .postMessage the first time it's injected
+- Figure out why it doesn't .postMessage the first time it's injected [Issue #5](https://github.com/spite/ShaderEditorExtension/issues/5)
 - Save to disk (?)
 - Add uniform tracking to display values fed to the shader
 - Integrating @zz85's GLSL Optimizer? (https://github.com/zz85/glsl-optimizer)
