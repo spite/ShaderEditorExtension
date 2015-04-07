@@ -8,6 +8,8 @@ A Chrome DevTools extension to help you edit shaders live in the browser. Very m
 
 Alternatively [download the extension (.crx)](/extension/ShaderEditor.crx)
 
+Some more info about this project: [Creating a Plug'n Play Live WebGL Shader Editor](http://www.clicktorelease.com/blog/live-webgl-shader-editor)
+
 ### How to install ###
 
 While in beta, you can load the extension from disk directly:
