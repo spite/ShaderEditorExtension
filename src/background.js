@@ -38,3 +38,15 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 
 });
+/*
+chrome.webNavigation.onCommitted.addListener( function() {
+  for( var j in connections ) {
+    connections[ j ].postMessage( { method: 'onCommitted' } );
+  }
+} );
+
+chrome.tabs.onUpdated.addListener( function( tabId ) {
+
+    connections[ tabId ].postMessage( { method: 'onUpdated' } );
+
+} );*/

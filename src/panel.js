@@ -492,6 +492,17 @@ var button = document.getElementById( 'reload' ),
 	vSFooter = document.getElementById( 'vs-count' ),
 	fSFooter = document.getElementById( 'fs-count' );
 
+/*chrome.devtools.network.onNavigated.addListener( function() {
+
+	//console.log( 'onNavigated' );
+	//chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ); // this gets appended AFTER the page
+	chrome.devtools.inspectedWindow.reload( {
+		ignoreCache: true, 
+    	injectedScript: '(' + f.toString() + ')()'
+	} );
+
+} );*/
+
 button.addEventListener( 'click', function( e ) {
 	chrome.devtools.inspectedWindow.reload( {
 		ignoreCache: true, 
@@ -576,6 +587,22 @@ function selectProgram( li ) {
 backgroundPageConnection.onMessage.addListener( function( msg ) {
 
 	switch( msg.method ) {
+		case 'onCommitted':
+			//chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ); // this gets appended AFTER the page
+			/*chrome.devtools.inspectedWindow.reload( {
+				ignoreCache: true, 
+		    	injectedScript: '(' + f.toString() + ')()'
+			} );*/
+			//console.log( 'onCommitted', Date.now() );
+			break;
+		case 'onUpdated':
+			//chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ); // this gets appended AFTER the page
+			/*chrome.devtools.inspectedWindow.reload( {
+				ignoreCache: true, 
+		    	injectedScript: '(' + f.toString() + ')()'
+			} );*/
+			//console.log( 'onCommitted', Date.now() );
+			break;
 		case 'init':
 			info.style.display = 'none';
 			container.style.display = 'block';
@@ -592,12 +619,12 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 				selectProgram( this );
 				chrome.devtools.inspectedWindow.eval( 'UIProgramSelected( \'' + msg.uid + '\' )' );
 			} );
-			li.addEventListener( 'mouseover', function() {
+			/*li.addEventListener( 'mouseover', function() {
 				chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
 			} );
 			li.addEventListener( 'mouseout', function() {
 				chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
-			} );
+			} );*/
 			list.appendChild( li );
 			break;
 		case 'setVSSource' :

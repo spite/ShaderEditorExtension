@@ -60,6 +60,13 @@ Nice to have:
 - Add uniform tracking to display values fed to the shader
 - Integrating @zz85's GLSL Optimizer? (https://github.com/zz85/glsl-optimizer)
 
+#### Changelog ####
+
+- v1.0.0 initial release
+- v1.0.1 fix extensions not being enabled 
+- v1.0.2 added colour highlighting for hover
+- v1.0.3 rolled back, colouring introducing bugs
+
 #### License ####
 
 MIT licensed
