@@ -2,6 +2,8 @@
 
 A Chrome DevTools extension to help you edit shaders live in the browser. Very much based on Firefox DevTools Shader Editor.
 
+![Shader Editor](/about/snapshot.png)
+
 ### How to install ###
 
 While in beta, you can load the extension from disk directly:
@@ -22,11 +24,19 @@ Alternatively, you can pack the extension yourself and load by dropping the .crx
 - If there are calls to .createProgram, the UI will show a list
 - Select a program to see its vertex shader and fragment shader
 
+### Stuff that works ###
+
+You can expand the editor area by clicking the Fullscreen button on the bottom right corner.
+
+If the shader code is obfuscated, you can click on the Autoformat button.
+
 ### Stuff that doesn't work ####
 
 Changing stuff in several places probably isn't tracked correctly, so if you edit a shader and the JavaScript in the page also edits it, there'll be weird side-effects.
 
 **More importantly: the shader compiling and testing is done with a separate WebGLRenderingContext, so is the page is using extensions, the shader won't compile.** The solution is either track the .getExtension method and reproduce it in the extension GL context, or pass the testing to the injected library.
+
+Browsing to another page doesn't clean the list of programs.
 
 ### TO-DO ###
 
