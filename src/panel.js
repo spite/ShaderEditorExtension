@@ -4,13 +4,13 @@ function f() {
 
 	window.__Injected = true;
 
-	function log() { console.log( arguments ); }
-	function error() { console.error( arguments ); }
-	//function log() {}
-	//function error() {}
+	//function log() { console.log( arguments ); }
+	//function error() { console.error( arguments ); }
+	function log() {}
+	function error() {}
 
-	function log( msg ) { logMsg( 'LOG: ' + msg )}
-	function error( msg ) { logMsg( 'ERROR: ' + msg )}
+	//function log( msg ) { logMsg( 'LOG: ' + msg )}
+	//function error( msg ) { logMsg( 'ERROR: ' + msg )}
 
 	function logMsg() { 
 
