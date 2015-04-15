@@ -2,6 +2,8 @@
 
 A Chrome DevTools extension to help you edit shaders live in the browser. Very much based on Firefox DevTools Shader Editor. [Here's a video showing it in action](http://www.youtube.com/watch?v=nPcUH3b3pFY)
 
+Twin project of [Web Audio API Editor Extension for Google Chrome](https://github.com/spite/WebAudioExtension)
+
 ![Shader Editor](/about/snapshot.jpg)
 
 [Install the extension from the Chrome Store](https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob)
