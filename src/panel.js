@@ -53,7 +53,6 @@ function f() {
 
 	var _gl = document.createElement( 'canvas' ).getContext( 'webgl' );
 
-	keepReference( 'getUniformLocation' );
 	keepReference( 'shaderSource' );
 	keepReference( 'createShader' );
 	keepReference( 'compileShader' );
@@ -99,7 +98,8 @@ function f() {
 			vertexShader: null, 
 			vertexShaderSource: '',
 			fragmentShader: null,
-			fragmentShaderSource: ''
+			fragmentShaderSource: '',
+			uniforms: []
 		};
 
 		programs[ p.__uuid ] = el;
@@ -177,26 +177,28 @@ function f() {
 	    }
 
 	    //gl.useProgram( program );
+    	var uniforms = currentProgram.uniforms;
 
-	    /*for( var p in uniforms ) {
+	    for( var j = 0; j < uniforms.length; j++ ) {
 
-	    	var u = uniforms[ p ];
-	    	if( u.program.__uuid === program.__uuid ) {
-	    		if( u.value ) {
-	    			u.location = references.getUniformLocation.apply( u.gl, [ u.program, u.uniform ] );
-					var args = [ u.location ];
-		    		for( var j = 0; j < u.value.length; j++ ) {
-		    			args.push( u.value[ j ] );
-		    		}
-		    		references[ u.type ].apply( u.gl, args );
-		    		var err = p.gl.getError();
-	    			if( err ) {
-						debugger;
-					}
-		    		logMsg( u.type + ' (' + u.uniform + ', ' + args + ')' );
-		    	}
+	    	var u = uniforms[ j ];
+
+			u.location = references.getUniformLocation.apply( gl, [ program, u.name ] );
+
+			if( u.value ) {
+				var args = [ u.location ];
+	    		for( var k = 0; k < u.value.length; k++ ) {
+	    			args.push( u.value[ k ] );
+	    		}
+	    		references[ u.type ].apply( gl, args );
+	    		var err = gl.getError();
+				if( err ) {
+				//	debugger;
+				}
+	    		logMsg( 'UPDATED ' + u.type + ' (' + u.uniform + ', ' + args + ')' );
 	    	}
-	    }*/
+
+		}
 
 		if( !vs ) currentProgram.vertexShaderSource = vsSource;
 		if( !fs ) currentProgram.fragmentShaderSource = fsSource;
@@ -348,33 +350,46 @@ function f() {
 		WebGLRenderingContext.prototype.getUniformLocation, 
 		function( res, args ) {
 
-			for( var j = 0; j < uniforms.length; j++ ) {
-				var u = uniforms[ j ];
-				if( u.program.__uuid === args[ 0 ].__uuid ){
-					if( u.uniform === args[ 1 ] ) {
-						u.location = res;
-						return;
-					}
+			res.__uuid = guid();
+			logMsg( 'UniformLocation ' + args[ 0 ].__uuid + ' ' + args[ 1 ] + ' : ' + res.__uuid );
+
+		} 
+
+	);
+
+	keepReference( 'getUniformLocation' );
+
+	WebGLRenderingContext.prototype.getUniformLocation = function( program, name ) {
+
+		var p = findProgram( program.__uuid );
+		if( p ) {
+
+			for( var j = 0; j < p.uniforms.length; j++ ) {
+				if( p.uniforms[ j ].name === name ) {
+					return p.uniforms[ j ].location;
 				}
 			}
 
-			/*if( !res ) {
-				var p = findProgram( args[ 0 ].__uuid );
-				var err = p.gl.getError();
-			}*/
+			var gl = p.gl;
+			var res = references.getUniformLocation.apply( gl, [ p.program, name ] );
 
-			uniforms.push( {
-				program: args[ 0 ],
-				uniform: args[ 1 ],
+			res.__uuid = guid();
+			
+			p.uniforms.push( {
+				name: name,
 				value: null,
 				type: null,
 				location: res,
 				gl: this
 			} );
-			log( 'Added uniform location ' + args[ 1 ] );
 
-		} 
-	);
+			log( 'Added uniform location ' + name );
+
+			return res;
+
+		}
+
+	}
 
 	WebGLRenderingContext.prototype.getAttribLocation = _h( 
 		WebGLRenderingContext.prototype.getAttribLocation, 
@@ -435,15 +450,25 @@ function f() {
 
 	function findProgramByLocation( location ) {
 
-		var f = null;
+		for( var j in programs ) {
 
-		uniforms.forEach( function( e ) {
-			if( e.location === location ) {
-				f = e;
+			p = programs[ j ];
+
+			for( var k = 0; k < p.uniforms.length; k++ ) {
+
+				var u = p.uniforms[ k ];
+
+				if( u.location === location ) {
+					
+					return { p: p, u: u };
+
+				}
+			
 			}
-		} );
-	
-		return f;	
+
+		}
+
+		return null;
 
 	}
 
@@ -462,9 +487,10 @@ function f() {
 		WebGLRenderingContext.prototype[ f ] = function() {
 
 			var args = arguments;
-			var p = findProgramByLocation( args[ 0 ] );
-			if( p ) {
-				var l = references.getUniformLocation.apply( p.gl, [ p.program, p.uniform ] );
+			var res = findProgramByLocation( args[ 0 ] );
+			if( res ) {
+				var gl = res.p.gl;
+				var l = p.gl.getUniformLocation( res.p.program, res.u.name );
 				//var l = p.location;
 				var a = [], aa = [];
 				a.push( l );
@@ -472,18 +498,21 @@ function f() {
 					a.push( args[ j ] );
 					aa.push( args[ j ] );
 				}
-				references[ f ].apply( p.gl, a );
+				references[ f ].apply( gl, a );
 
-				/*var err = p.gl.getError();
+				var err = gl.getError();
 				if( err ) {
-					logMsg( 'ERROR with ' + p.uniform );
-				}*/
+					//debugger;
+				//	logMsg( 'ERROR with ' + res.u.name );
+				}
 
-				p.value = aa;
-				p.type = f;
+				res.u.value = aa;
+				res.u.type = f;
 
-				//log( f + ' ' + p.uniform + ' ' + a[ 1 ])
+				//logMsg( f + ' ' + p.uniform + ' ' + a );
 
+			} else {
+				//debugger;
 			}
 
 		}
@@ -574,6 +603,12 @@ var button = document.getElementById( 'reload' ),
 	vSFooter = document.getElementById( 'vs-count' ),
 	fSFooter = document.getElementById( 'fs-count' ),
 	log = document.getElementById( 'log' );
+
+var verbose = true;
+if( verbose ) {
+	log.style.left = '50%';
+	container.style.right= '50%';
+}
 
 function logMsg() {
 
