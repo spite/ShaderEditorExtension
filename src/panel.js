@@ -713,7 +713,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 		case 'init':
 			logMsg( 'init' );
 			info.style.display = 'none';
-			waiting.style.display = 'block';
+			waiting.style.display = 'flex';
 			break;
 		case 'getExtension':
 			logMsg( 'addExtension', msg.extension );

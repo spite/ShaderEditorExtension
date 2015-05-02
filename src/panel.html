@@ -25,10 +25,10 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #vsEditor{ position: absolute; left: 0; right: 0; top: 0; bottom: 25px; height: calc( 100% - 25px ); width: 100%; }
 #fsEditor{ position: absolute; left: 0; right: 0; top: 0; bottom: 25px; height: calc( 100% - 25px ); width: 100%; }
 .footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; border-top: 1px solid #eeeeee; }
-.footer p{ position: absolute;left: 0; top: 0; bottom: 0; right: 45px; overflow: hidden; padding: 5px 5px; white-space: nowrap; text-overflow: ellipsis; }
+.footer p{ position: absolute;left: 0; top: 0; bottom: 0; right: 45px; overflow: hidden; padding: 3px 5px; white-space: nowrap; text-overflow: ellipsis; }
 .errorMessage{ background-color: #b60000; color: white; padding: 5px;}
-#waiting{ display: none; color: #404040; text-align: center; position: absolute; left: 50%; top: 50%; transform: translate3d( -50%, -50%, 0 );}
-#info{ color: #404040; text-align: center; position: absolute; left: 50%; top: 50%; transform: translate3d( -50%, -50%, 0 );}
+#waiting{ display: none; color: #404040; text-align: center; justify-content: center; align-items: center; height: 100%; }
+#info{ color: #404040; text-align: center; display: flex; justify-content: center; align-items: center; height: 100%; }
 #info h1{ margin-bottom: 1em;}
 #info p{ margin-bottom: 1em; line-height: 1.4em}
 #info button{ margin-bottom: 1em;}
@@ -46,13 +46,13 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 </style>
 </head>
 <body>
-<div id="info">
+<div id="info"><div>
 	<p>Welcome!</p>
 	<h1>WebGL GLSL shader editor extension<br/>v1.0.5 (beta)</h1>
 	<p>To start tracking the WebGL context,<br/>the extension needs to reload the page.</p>
 	<button id="reload" >Reload</button>
 	<p>Bugs, ideas and feedback: <a rel="external" href="https://github.com/spite/ShaderEditorExtension">GitHub page</a><br/><a rel="external" href="https://twitter.com/thespite" >@thespite</a> | <a rel="external" href="http://www.clicktorelease.com" >www.clicktorelease.com</a></p>
-</div>
+</div></div>
 <div id="waiting" >
 	<p>Waiting for programs to be added...</p>
 </div>
