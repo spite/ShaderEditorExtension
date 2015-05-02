@@ -13,18 +13,18 @@
 body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #reload{ padding: 10px; cursor: pointer;}
 #container{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none; }
-#list{ position: absolute; left: 0; width: 200px; top: 0; bottom: 0; listy-style-type: none; background-color: #eee; overflow: auto; border-right: 1px solid #a6a6a6}
-#list li{ padding: 5px; border-top: 1px solid #dedede; border-bottom: 1px solid #e5e5e5; cursor: pointer;}
+#list{ position: absolute; left: 0; width: 200px; top: 0; bottom: 0; listy-style-type: none; background-color: #eee; overflow: auto; }
+#list li { padding: 5px 10px; border-bottom: 1px solid #e5e5e5; cursor: pointer; }
 #list li:hover{ background-color: rgba(56, 121, 217, 0.1); }
 #list li.active{ background-color: rgb(56, 121, 217); color: white;}
 #editorContainer{ position: absolute; left: 200px; right: 0; top: 0; bottom: 0;}
 #vs-panel, #fs-panel{ transition: background-color 150ms ease-out }
-#vs-panel{ position: absolute; left: 0; right: 50%; top: 0; bottom: 0; height: 100%; width: 50%; border-right: 1px solid #a6a6a6;}
+#vs-panel{ position: absolute; left: 0; right: 50%; top: 0; bottom: 0; height: 100%; width: 50%; }
 #fs-panel{ position: absolute; left: 50%; right: 0; top: 0; bottom: 0; height: 100%; width: 50%; }
 #vs-panel.fullscreen, #fs-panel.fullscreen{ left: 0; right: 0; width: 100%; z-index: 100; }
 #vsEditor{ position: absolute; left: 0; right: 0; top: 0; bottom: 25px; height: calc( 100% - 25px ); width: 100%; }
 #fsEditor{ position: absolute; left: 0; right: 0; top: 0; bottom: 25px; height: calc( 100% - 25px ); width: 100%; }
-.footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; border-top: 1px solid #eeeeee; }
+.footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; border-left: 1px solid #a6a6a6; }
 .footer p{ position: absolute;left: 0; top: 0; bottom: 0; right: 45px; overflow: hidden; padding: 3px 5px; white-space: nowrap; text-overflow: ellipsis; }
 .errorMessage{ background-color: #b60000; color: white; padding: 5px;}
 #waiting{ display: none; color: #404040; text-align: center; justify-content: center; align-items: center; height: 100%; }
@@ -38,8 +38,8 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 .fullscreen .go-fullscreen{ background-image: url( assets/fs_exit.svg ); }
 .go-format{ background-image: url( assets/format.svg ); width: 15px; height: 15px; display: block; position: absolute; top: 5px; right: 25px; background-size: 15px 15px; cursor: pointer; }
 .hide{ display: none;}
-.CodeMirror{ border: 1px solid #a6a6a6;}
-.CodeMirror-focused{ border: 1px solid #4c9ed9;}
+.CodeMirror{ border: 1px solid #a6a6a6; border-right: 1px solid transparent; border-top: 1px solid transparent; }
+.CodeMirror-focused{ border: 1px solid #4c9ed9; border-right: 1px solid #4c9ed9; border-top: 1px solid #4c9ed9; }
 #log{ position: absolute;left: 50%; top:0;right: 0; bottom: 0; overflow: auto; display: none;}
 .compiled{ background-color: #2fb600; color: white;}
 .not-compiled{ background-color: #b60000; color: white;}
