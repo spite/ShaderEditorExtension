@@ -10,25 +10,25 @@
 <script src="./codemirror/search.js"></script>
 <style>
 *{ box-sizing: border-box; margin: 0; padding: 0; font-size: 12px;}
-body{ background-color: #f7f7f7;}
+body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #reload{ padding: 10px; cursor: pointer;}
 #container{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none; }
-#list{ position: absolute; left: 0; width: 200px; top: 0; bottom: 0; listy-style-type: none; background-color: #f7f7f7; overflow: auto; border-right: 1px solid #a6a6a6}
-#list li{ padding: 5px; border-top: 1px solid #dedede; border-bottom: 1px solid #e5e5e5; cursor: pointer;}
-#list li:hover{ background-color: #aaaaaa;}
-#list li.active{ background-color: #4c9ed9; color: white;}
+#list{ position: absolute; left: 0; width: 200px; top: 0; bottom: 0; listy-style-type: none; background-color: #eee; overflow: auto; }
+#list li { padding: 5px 10px; border-bottom: 1px solid #e5e5e5; cursor: pointer; }
+#list li:hover{ background-color: rgba(56, 121, 217, 0.1); }
+#list li.active{ background-color: rgb(56, 121, 217); color: white;}
 #editorContainer{ position: absolute; left: 200px; right: 0; top: 0; bottom: 0;}
 #vs-panel, #fs-panel{ transition: background-color 150ms ease-out }
-#vs-panel{ position: absolute; left: 0; right: 50%; top: 0; bottom: 0; height: 100%; width: 50%; border-right: 1px solid #a6a6a6;}
+#vs-panel{ position: absolute; left: 0; right: 50%; top: 0; bottom: 0; height: 100%; width: 50%; }
 #fs-panel{ position: absolute; left: 50%; right: 0; top: 0; bottom: 0; height: 100%; width: 50%; }
 #vs-panel.fullscreen, #fs-panel.fullscreen{ left: 0; right: 0; width: 100%; z-index: 100; }
 #vsEditor{ position: absolute; left: 0; right: 0; top: 0; bottom: 25px; height: calc( 100% - 25px ); width: 100%; }
 #fsEditor{ position: absolute; left: 0; right: 0; top: 0; bottom: 25px; height: calc( 100% - 25px ); width: 100%; }
-.footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; border-top: 1px solid #eeeeee; }
-.footer p{ position: absolute;left: 0; top: 0; bottom: 0; right: 45px; overflow: hidden; padding: 5px 5px; white-space: nowrap; text-overflow: ellipsis; }
+.footer{ position: absolute; left: 0; bottom: 0; height: 25px; right: 0; border-left: 1px solid #a6a6a6; }
+.footer p{ position: absolute;left: 0; top: 0; bottom: 0; right: 45px; overflow: hidden; padding: 3px 5px; white-space: nowrap; text-overflow: ellipsis; }
 .errorMessage{ background-color: #b60000; color: white; padding: 5px;}
-#waiting{ display: none; color: #404040; text-align: center; position: absolute; left: 50%; top: 50%; transform: translate3d( -50%, -50%, 0 );}
-#info{ color: #404040; text-align: center; position: absolute; left: 50%; top: 50%; transform: translate3d( -50%, -50%, 0 );}
+#waiting{ display: none; color: #404040; text-align: center; justify-content: center; align-items: center; height: 100%; }
+#info{ color: #404040; text-align: center; display: flex; justify-content: center; align-items: center; height: 100%; }
 #info h1{ margin-bottom: 1em;}
 #info p{ margin-bottom: 1em; line-height: 1.4em}
 #info button{ margin-bottom: 1em;}
@@ -38,21 +38,21 @@ body{ background-color: #f7f7f7;}
 .fullscreen .go-fullscreen{ background-image: url( assets/fs_exit.svg ); }
 .go-format{ background-image: url( assets/format.svg ); width: 15px; height: 15px; display: block; position: absolute; top: 5px; right: 25px; background-size: 15px 15px; cursor: pointer; }
 .hide{ display: none;}
-.CodeMirror{ border: 1px solid #a6a6a6;}
-.CodeMirror-focused{ border: 1px solid #4c9ed9;}
+.CodeMirror{ border: 1px solid #a6a6a6; border-right: 1px solid transparent; border-top: 1px solid transparent; }
+.CodeMirror-focused{ border: 1px solid #4c9ed9; border-right: 1px solid #4c9ed9; border-top: 1px solid #4c9ed9; }
 #log{ position: absolute;left: 50%; top:0;right: 0; bottom: 0; overflow: auto; display: none;}
 .compiled{ background-color: #2fb600; color: white;}
 .not-compiled{ background-color: #b60000; color: white;}
 </style>
 </head>
 <body>
-<div id="info">
+<div id="info"><div>
 	<p>Welcome!</p>
 	<h1>WebGL GLSL shader editor extension<br/>v1.0.5 (beta)</h1>
 	<p>To start tracking the WebGL context,<br/>the extension needs to reload the page.</p>
 	<button id="reload" >Reload</button>
 	<p>Bugs, ideas and feedback: <a rel="external" href="https://github.com/spite/ShaderEditorExtension">GitHub page</a><br/><a rel="external" href="https://twitter.com/thespite" >@thespite</a> | <a rel="external" href="http://www.clicktorelease.com" >www.clicktorelease.com</a></p>
-</div>
+</div></div>
 <div id="waiting" >
 	<p>Waiting for programs to be added...</p>
 </div>

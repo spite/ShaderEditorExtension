@@ -514,7 +514,7 @@ function f() {
 		var vs = p.vertexShaderSource;
 		var fs = p.fragmentShaderSource;
 
-		fs = fs.replace( /[ ]+main[ ]*\(/ig, ' ShaderEditorInternalMain(' );
+		fs = fs.replace( /\s+main\s*\(/, ' ShaderEditorInternalMain(' );
 		fs += '\r\n' + 'void main() { ShaderEditorInternalMain(); gl_FragColor.rgb *= vec3(1.,0.,1.); }';
 
 		update( vs, fs );
@@ -713,7 +713,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 		case 'init':
 			logMsg( 'init' );
 			info.style.display = 'none';
-			waiting.style.display = 'block';
+			waiting.style.display = 'flex';
 			break;
 		case 'getExtension':
 			logMsg( 'addExtension', msg.extension );
