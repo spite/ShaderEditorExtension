@@ -22,61 +22,105 @@ function f() {
 		window.postMessage( { source: 'WebGLShaderEditor', method: 'log', arguments: args }, '*');
 	}
 
-	function guid() {
-		function s4() {
-			return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-		}
-		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-	}
+	programs = {};
+	shaders = {};
+
+	var methods = [
+		'createProgram', 'linkProgram', 'useProgram',
+		'createShader', 'shaderSource', 'compileShader', 'attachShader', 'detachShader',
+		'getUniformLocation',
+		'getAttribLocation', 'vertexAttribPointer', 'enableVertexAttribArray', 'bindAttribLocation',
+		'bindBuffer'
+	];
+
+	this.references = {};
+	methods.forEach( function( f ) {
+		this.references[ f ] = WebGLRenderingContext.prototype[ f ];
+	}.bind ( this ) );
 
 	function _h( f, c ) {
+
 		return function() {
 			var res = f.apply( this, arguments );
 			res = c.apply( this, [ res, arguments ] ) || res;
 			return res;
 		}
+
 	}
 
 	function _h2( f, c ) {
+
 		return function() {
 			return c.apply( this, arguments );
 		}
-	}
-
-	var references = {};
-
-	function keepReference( f ) {
-
-		references[ f ] = WebGLRenderingContext.prototype[ f ];
 
 	}
 
-	var _gl = document.createElement( 'canvas' ).getContext( 'webgl' );
+	function createUUID() {
 
-	keepReference( 'getUniformLocation' );
-	keepReference( 'shaderSource' );
-	keepReference( 'createShader' );
-	keepReference( 'compileShader' );
-	keepReference( 'attachShader' );
-	keepReference( 'detachShader' );
-	keepReference( 'linkProgram' );
+		function s4() {
+			return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+		}
 
-	//init();
+		return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 
-	var programs = {};
-	var shaders = {};
-	var uniforms = [];
-	var attributes = [];
-	var currentProgram = null;
-	var fsSource = '';
-	var vsSource = '';
+	}
+
+	function addProgram( gl, p ) {
+
+		var el = {
+			program: p,
+			original: p,
+			gl: gl,
+			uniforms: [],
+			attributes: []
+		}
+
+		programs[ p.__uuid ] = el;
+
+		logMsg( 'addProgram', p.__uuid );
+		window.postMessage( { source: 'WebGLShaderEditor', method: 'addProgram', uid: p.__uuid }, '*');
+
+	}
+
+	function addShader( shader, type ) {
+
+		shaders[ shader.__uuid ] = { shader: shader, type: type };
+
+		logMsg( 'addShader', shader.__uuid, type );
+
+	}
 
 	function findProgram( id ) {
 
 		if( programs[ id ] ) {
-			return programs[ id ];			
+			return programs[ id ];
 		}
-		
+
+		return null;
+
+	}
+
+	function findOriginalProgram( id ) {
+
+		for( var j in programs ) {
+			if( programs[ j ].original.__uuid == id ) {
+				return programs[ j ];
+			}
+		}
+
+		return null;
+
+	}
+
+	function findProgramById( id ) {
+
+		for( var j in programs ) {
+			if( programs[ j ].program.__uuid == id ) {
+				return programs[ j ];
+			}
+		}
+
 		return null;
 
 	}
@@ -87,216 +131,38 @@ function f() {
 			return shaders[ s.__uuid ];
 		}
 
-		return null;	
+		return null;
 
 	}
 
-	function addProgram( gl, p ) {
+	WebGLRenderingContext.prototype.createProgram = function() {
+	
+		var res = references.createProgram.apply( this, [] );
+		res.__uuid = createUUID();
+		res.version = 1;
+		addProgram( this, res );
 
-		var el = { 
-			gl: gl, 
-			program: p, 
-			vertexShader: null, 
-			vertexShaderSource: '',
-			fragmentShader: null,
-			fragmentShaderSource: ''
-		};
+		return res;
 
-		programs[ p.__uuid ] = el;
-
-		window.postMessage( { source: 'WebGLShaderEditor', method: 'addProgram', uid: p.__uuid }, '*');
-
-	}
-
-	function selectProgram( p ) {
-
-		currentProgram = p;
-		logMsg( 'Selected program ' + p.program.__uuid );
-			
-	}
-
-	function update( vs, fs ) {
-
-		if( !currentProgram ) return;
-		logMsg( 'Update' );
-
-		var gl = currentProgram.gl,
-			program = currentProgram.program,
-			vertexShader = null,
-			fragmentShader = null;
-
-		if( currentProgram.vertexShader ) {
-			vertexShader = currentProgram.vertexShader.shader;
-		}
-
-		if( !vertexShader ) {
-			vertexShader = gl.createShader( gl.VERTEX_SHADER );
-		}
-
-		if( vs ) { references.shaderSource.apply( gl, [ vertexShader, vs ] ); } else { gl.shaderSource( vertexShader, vsSource ); }
-		gl.compileShader( vertexShader );
-
-		if( !gl.getShaderParameter( vertexShader, gl.COMPILE_STATUS ) ) {
-
-			error( 'VS gl.getShaderInfoLog() ' + gl.getShaderInfoLog( vertexShader ) );
-			return;
-
-		}
-
-		references.attachShader.apply( gl, [ program, vertexShader ] );
-	    gl.deleteShader( vertexShader );
-
-		if( currentProgram.fragmentShader ) {
-			fragmentShader = currentProgram.fragmentShader.shader;
-		}
-
-		if( !fragmentShader ) {
-			fragmentShader = gl.createShader( gl.FRAGMENT_SHADER );
-		}
-
-		if( fs ) { references.shaderSource.apply( gl, [ fragmentShader, fs ] );  } else { gl.shaderSource( fragmentShader, fsSource );  }
-		gl.compileShader( fragmentShader );
-
-		if( !gl.getShaderParameter( fragmentShader, gl.COMPILE_STATUS ) ) {
-
-			error( 'FS gl.getShaderInfoLog() ' + gl.getShaderInfoLog( fragmentShader ) );
-			return;
-
-		}
-
-		references.attachShader.apply( gl, [ program, fragmentShader ] );
-	    gl.deleteShader( fragmentShader );
-
-		gl.linkProgram( program );
-
-		if( !gl.getProgramParameter( program, gl.LINK_STATUS ) ) {
-	        var infoLog = gl.getProgramInfoLog( program );
-	        //gl.deleteProgram( program );
-	        error( infoLog );
-	        return;
-	    }
-
-	    //gl.useProgram( program );
-
-	    /*for( var p in uniforms ) {
-
-	    	var u = uniforms[ p ];
-	    	if( u.program.__uuid === program.__uuid ) {
-	    		if( u.value ) {
-	    			u.location = references.getUniformLocation.apply( u.gl, [ u.program, u.uniform ] );
-					var args = [ u.location ];
-		    		for( var j = 0; j < u.value.length; j++ ) {
-		    			args.push( u.value[ j ] );
-		    		}
-		    		references[ u.type ].apply( u.gl, args );
-		    		var err = p.gl.getError();
-	    			if( err ) {
-						debugger;
-					}
-		    		logMsg( u.type + ' (' + u.uniform + ', ' + args + ')' );
-		    	}
-	    	}
-	    }*/
-
-		if( !vs ) currentProgram.vertexShaderSource = vsSource;
-		if( !fs ) currentProgram.fragmentShaderSource = fsSource;
-
-		logMsg( 'Updated successfully' );
-
-	}
+	};
 
 	WebGLRenderingContext.prototype.createShader = _h( 
 		WebGLRenderingContext.prototype.createShader, 
 		function( res, args ) {
 
-			log( 'createShader', args );
-			res.__uuid = guid();
-			shaders[ res.__uuid ] = { shader: res, type: args[ 0 ] };
-
-			if( args[ 0 ] == _gl.VERTEX_SHADER ) {
-				log( 'Vertex shader created' );
-			}
-			if( args[ 0 ] == _gl.FRAGMENT_SHADER ) {
-				log( 'Fragment shader created' );
-			}
+			res.__uuid = createUUID();
+			addShader( res, args[ 0 ] );
 
 		} 
 	);
-
-	/*WebGLRenderingContext.prototype.deleteShader = _h( 
-		WebGLRenderingContext.prototype.deleteShader, 
-		function( res, args ) {
-
-			log( 'deleteShader', args );
-			return;
-			var s = findShader( args[ 0 ] );
-
-			for( var j in programs ) {
-				var p = programs[ j ];
-				if( p.vertexShader && p.vertexShader.shader.__uuid == s.shader.__uuid ) {
-					p.vertexShader = null;
-					log( 'Vertex shader deleted' );
-				}
-				if( p.fragmentShader && p.fragmentShader.shader.__uuid == s.shader.__uuid ) {
-					p.fragmentShader = null;
-					log( 'Fragment shader deleted' );
-				}
-			}
-
-			shaders[ args[ 0 ].__uuid ] = null;
-			delete shaders[ args[ 0 ].__uuid ];
-
-		} 
-	);*/
 
 	WebGLRenderingContext.prototype.shaderSource = _h( 
 		WebGLRenderingContext.prototype.shaderSource, 
 		function( res, args ) {
 
-			log( 'shaderSource', args );
 			var s = findShader( args[ 0 ] );
-			//s.source = '#define SHADERID ' + s.shader.__uuid + "\r\n" + args[ 1 ];
 			s.source = args[ 1 ];
-
-		} 
-	);
-
-	WebGLRenderingContext.prototype.compileShader = _h( 
-		WebGLRenderingContext.prototype.compileShader, 
-		function( res, args ) {
-
-			log( 'compileShader', args );
-
-		} 
-	);
-
-	WebGLRenderingContext.prototype.createProgram = _h( 
-		WebGLRenderingContext.prototype.createProgram, 
-		function( res, args ) {
-
-			res.__uuid = guid();
-
-			log( 'createProgram', res, args );
-			addProgram( this, res );
-
-		} 
-	);
-
-	/*WebGLRenderingContext.prototype.useProgram = _h( 
-		WebGLRenderingContext.prototype.useProgram, 
-		function( res, args ) {
-
-			log( 'useProgram', res, args );
-
-		} 
-	);*/
-
-	WebGLRenderingContext.prototype.deleteProgram = _h( 
-		WebGLRenderingContext.prototype.deleteProgram, 
-		function( res, args ) {
-
-			log( 'deleteProgram', res, args );
-			//addProgram( this, res );
+			//logMsg( 'shaderSource', s.source );
 
 		} 
 	);
@@ -305,147 +171,161 @@ function f() {
 		WebGLRenderingContext.prototype.attachShader, 
 		function( res, args ) {
 
-			log( 'attachShader', args );
 			var p = findProgram( args[ 0 ].__uuid );
 			var s = findShader( args[ 1 ] );
 
-			if( s.type == _gl.VERTEX_SHADER ) {
+			if( s.type == p.gl.VERTEX_SHADER ) {
 				p.vertexShader = s;
 				p.vertexShaderSource = s.source;
 			}
-			if( s.type == _gl.FRAGMENT_SHADER ) {
+			if( s.type == p.gl.FRAGMENT_SHADER ) {
 				p.fragmentShader = s;
 				p.fragmentShaderSource = s.source;
 			}
-			
-		} 
-	);
-
-	WebGLRenderingContext.prototype.detachShader = _h( 
-		WebGLRenderingContext.prototype.detachShader, 
-		function( res, args ) {
-
-			log( 'detachShader', args );
-			/*var p = findProgram( args[ 0 ].__uuid );
-			var s = findShader( args[ 1 ] );
-
-			if( s.type == _gl.VERTEX_SHADER ) p.vertexShader = s;
-			if( s.type == _gl.FRAGMENT_SHADER ) p.fragmentShader = s;*/
-			
-		} 
-	);
-
-	WebGLRenderingContext.prototype.linkProgram = _h( 
-		WebGLRenderingContext.prototype.linkProgram, 
-		function( res, args ) {
-
-			log( 'linkProgram', args );
 
 		} 
 	);
 
-	WebGLRenderingContext.prototype.getUniformLocation = _h( 
-		WebGLRenderingContext.prototype.getUniformLocation, 
-		function( res, args ) {
+	var currentProgram = null;
 
-			for( var j = 0; j < uniforms.length; j++ ) {
-				var u = uniforms[ j ];
-				if( u.program.__uuid === args[ 0 ].__uuid ){
-					if( u.uniform === args[ 1 ] ) {
-						u.location = res;
-						return;
-					}
-				}
+	WebGLRenderingContext.prototype.useProgram = function( p ) {
+
+		var program = findOriginalProgram( p.__uuid );
+		currentProgram = program;
+		//logMsg( '>>> useProgram', p.__uuid )
+		references.useProgram.apply( program.gl, [ program.program ] );
+
+	};
+
+	WebGLRenderingContext.prototype.getUniformLocation = function( program, name ) {
+
+		var p = findProgram( program.__uuid );
+
+		for( var j = 0; j < p.uniforms.length; j++ ) {
+			if( p.uniforms[ j ].name === name ) {
+				return p.uniforms[ j ].location;
 			}
+		}
 
-			/*if( !res ) {
-				var p = findProgram( args[ 0 ].__uuid );
-				var err = p.gl.getError();
-			}*/
-
-			uniforms.push( {
-				program: args[ 0 ],
-				uniform: args[ 1 ],
+		var gl = p.gl;
+		var res = references.getUniformLocation.apply( gl, [ p.program, name ] );
+		if( res ) {
+			res.__uuid = createUUID();
+			
+			p.uniforms.push( {
+				name: name,
 				value: null,
 				type: null,
 				location: res,
+				originalLocation: res,
 				gl: this
 			} );
-			log( 'Added uniform location ' + args[ 1 ] );
 
-		} 
-	);
-
-	WebGLRenderingContext.prototype.getAttribLocation = _h( 
-		WebGLRenderingContext.prototype.getAttribLocation, 
-		function( res, args ) {
-
-			/*attributes.push( {
-				program: args[ 0 ],
-				uniform: args[ 1 ],
-				location: res,
-				gl: this
-			} );*/
-			//debugger;
-			//log( 'getAttribLocation ' + args[ 1 ] );
-
-		} 
-	);
-
-	WebGLRenderingContext.prototype.enableVertexAttribArray = _h(
-		WebGLRenderingContext.prototype.enableVertexAttribArray,
-		function( res, args ) {
-
-			//logMsg( 'enableVertexAttribArray ' + args[ 1 ] );
+			logMsg( 'Added uniform location ' + name );
 		}
-	);
+		return res;
 
-	WebGLRenderingContext.prototype.vertexAttribPointer = _h(
-		WebGLRenderingContext.prototype.vertexAttribPointer,
-		function( res, args ) {
+	};
 
-			//logMsg( 'vertexAttribPointer ' + args[ 1 ] );
-		}
-	);
+	WebGLRenderingContext.prototype.bindBuffer = function( target, buffer ) {
 
-	WebGLRenderingContext.prototype.bindAttribLocation = _h( 
-		WebGLRenderingContext.prototype.bindAttribLocation, 
-		function( res, args ) {
-
-			/*uniforms.push( {
-				program: args[ 0 ],
-				uniform: args[ 1 ],
-				location: res,
-				gl: this
-			} );*/
-			//debugger;
-			//log( 'bindAttribLocation ' + args[ 1 ] + ' ' + args[ 2 ] );
-
-		} 
-	);
-
-	WebGLRenderingContext.prototype.getExtension = _h( 
-		WebGLRenderingContext.prototype.getExtension, 
-		function( res, args ) {
-
-			window.postMessage( { source: 'WebGLShaderEditor', method: 'getExtension', extension: args[ 0 ] }, '*');	
-
-		} 
-	);
-
-	function findProgramByLocation( location ) {
-
-		var f = null;
-
-		uniforms.forEach( function( e ) {
-			if( e.location === location ) {
-				f = e;
-			}
-		} );
-	
-		return f;	
+		//logMsg( 'bindBuffer', target, buffer );
+		return references.bindBuffer.apply( this, [ target, buffer ] );
 
 	}
+
+	WebGLRenderingContext.prototype.getAttribLocation = function( program, name ) {
+
+		var p = findProgram( program.__uuid );
+
+		for( var j = 0; j < p.attributes.length; j++ ) {
+			if( p.attributes[ j ].name === name ) {
+				return p.attributes[ j ].index;
+			}
+		}
+
+		var gl = p.gl;
+		var index = references.getAttribLocation.apply( gl, [ p.program, name ] );
+		if( index != -1 ) {
+						
+			var el = {
+				index: index, 
+				originalIndex: index,
+				name: name,
+				gl: this
+			};
+
+			p.attributes.push( el );
+
+			logMsg( 'Added attribute location ' + name + ': ' + index + ' to ' + program.__uuid );
+		}
+		return index;
+
+	}
+
+	WebGLRenderingContext.prototype.bindAttribLocation = function( program, index, name ) {
+
+		var p = findProgram( program.__uuid );
+
+		var gl = p.gl;
+		references.bindAttribLocation.apply( gl, [ p.program, index, name ] );
+		var el = {
+			index: index, 
+			originalIndex: index,
+			name: name,
+			gl: this
+		};
+
+		p.attributes.push( el );
+
+		//logMsg( 'Bind attribute location ' + name + ': ' + index );
+	
+	} 
+
+	function findAttributeByIndex( program, index ) {
+
+		for( var j = 0; j < program.attributes.length; j++ ) {
+			var a = program.attributes[ j ];
+			if( a.originalIndex === index ) {
+				return a;
+			}
+		}
+
+		return null;
+
+	}
+
+	WebGLRenderingContext.prototype.enableVertexAttribArray = function( index ) {
+
+		var program = this.getParameter( this.CURRENT_PROGRAM );
+		var p = findProgramById( program.__uuid );
+		var a = findAttributeByIndex( p, index );
+
+		//logMsg( 'enableVertexAttribArray ', p.program.__uuid, a.index, ' (' + a.name + ')' )
+
+		var res = references.enableVertexAttribArray.apply( this, [ a.index ] );
+		return res;
+
+	} 
+
+	WebGLRenderingContext.prototype.vertexAttribPointer = function( index, size, type, normalized, stride, offset ) {
+
+		var program = this.getParameter( this.CURRENT_PROGRAM );
+		var p = findProgramById( program.__uuid );
+		var a = findAttributeByIndex( p, index );
+
+		a.size = size;
+		a.type = type;
+		a.normalized = normalized;
+		a.stride = stride;
+		a.offset = offset;
+
+		//logMsg( 'vertexAttribPointer ', p.program.__uuid, a.index, ' (' + a.name + ')' )
+
+		var res = references.vertexAttribPointer.apply( this, [ a.index, size, type, normalized, stride, offset ] );
+		return res;
+
+	} 
 
 	var methods = [ 
 		'uniform1f', 'uniform1fv', 'uniform1i', 'uniform1iv', 
@@ -457,50 +337,181 @@ function f() {
 
 	methods.forEach( function( f ) {
 
-		keepReference( f );
+		references[ f ] = WebGLRenderingContext.prototype[ f ];
 
 		WebGLRenderingContext.prototype[ f ] = function() {
 
 			var args = arguments;
-			var p = findProgramByLocation( args[ 0 ] );
-			if( p ) {
-				var l = references.getUniformLocation.apply( p.gl, [ p.program, p.uniform ] );
-				//var l = p.location;
+			var res = findProgramByLocation( args[ 0 ] );
+			if( res ) {
+
+				var gl = res.p.gl;
+				var l = res.u.location;
+				
 				var a = [], aa = [];
 				a.push( l );
 				for( var j = 1; j < args.length; j++ ) {
 					a.push( args[ j ] );
 					aa.push( args[ j ] );
 				}
-				references[ f ].apply( p.gl, a );
+				references[ f ].apply( gl, a );
 
-				/*var err = p.gl.getError();
+				/*var err = gl.getError();
 				if( err ) {
-					logMsg( 'ERROR with ' + p.uniform );
+					debugger;
 				}*/
 
-				p.value = aa;
-				p.type = f;
-
-				//log( f + ' ' + p.uniform + ' ' + a[ 1 ])
-
+				res.u.value = aa;
+				res.u.type = f;
 			}
 
 		}
 
 	} );
 
+	function findProgramByLocation( location ) {
+
+		for( var j in programs ) {
+
+			var p = programs[ j ];
+
+			for( var k = 0; k < p.uniforms.length; k++ ) {
+
+				var u = p.uniforms[ k ];
+
+				if( u.originalLocation === location ) {
+					
+					return { p: p, u: u };
+
+				}
+			
+			}
+
+		}
+
+		return null;
+
+	}
+
+
+	function onSelectProgram( id ) {
+
+		logMsg( id + ' selected' );
+		var program = findProgram( id );
+		//logMsg( program );
+		window.postMessage( { source: 'WebGLShaderEditor', method: 'setVSSource', code: program.vertexShaderSource }, '*');
+		window.postMessage( { source: 'WebGLShaderEditor', method: 'setFSSource', code: program.fragmentShaderSource }, '*');
+
+	}
+
+	function onUpdateVSource( id, source ) {
+
+		var program = findProgram( id );
+		program.vertexShaderSource = source;
+		logMsg( 'vs update' );
+
+	}
+
+	function onUpdateFSource( id, source ) {
+
+		var program = findProgram( id );
+		program.fragmentShaderSource = source;
+		logMsg( 'fs update' );
+			
+	}
+
+	function onUpdateProgram( id, vSource, fSource ) {
+
+		logMsg( 'update', id );
+
+		var program = findProgram( id );
+
+		var gl = program.gl;
+		var p = references.createProgram.apply( gl );
+		p.__uuid = createUUID();
+		p.version = program.program.version + 1;
+
+		var vs = references.createShader.apply( gl, [ gl.VERTEX_SHADER ] );
+		references.shaderSource.apply( gl, [ vs, vSource != null ? vSource : program.vertexShaderSource ] );
+		references.compileShader.apply( gl, [ vs ] );
+		if (!gl.getShaderParameter( vs, gl.COMPILE_STATUS ) ) {
+			debugger;
+			logMsg( gl.getShaderInfoLog( vs ) );
+			return;
+		}
+		references.attachShader.apply( gl, [ p, vs ] );
+
+		var fs = references.createShader.apply( gl, [ gl.FRAGMENT_SHADER ] );
+		references.shaderSource.apply( gl, [ fs, fSource != null ? fSource : program.fragmentShaderSource ] );
+		references.compileShader.apply( gl, [ fs ] );
+		if (!gl.getShaderParameter( fs, gl.COMPILE_STATUS ) ) {
+			debugger;
+			logMsg( gl.getShaderInfoLog( fs ) );
+			return;
+		}
+		references.attachShader.apply( gl, [ p, fs ] );
+
+		references.linkProgram.apply( gl, [ p ] );
+		var currentProgram = gl.getParameter( gl.CURRENT_PROGRAM );
+		references.useProgram.apply( gl, [ p ] );
+
+		program.program = p;
+		
+		for( var j = 0; j < program.uniforms.length; j++ ) {
+			var u = program.uniforms[ j ];
+			var original = u.location.__uuid;
+			u.location = references.getUniformLocation.apply( u.gl, [ program.program, u.name ] );
+			u.location.__uuid = createUUID();
+			var args = [ u.location ]
+			u.value.forEach( function( v ) { args.push( v ) } );
+			references[ u.type ].apply( u.gl, args );
+			/*var err = gl.getError();
+			if( err ) {
+				debugger;
+			}*/
+			logMsg( 'updated uniform location "' + u.name + '"" to ' + u.location.__uuid + ' (was ' + original + ')' );
+		}
+
+		/*
+		All vertex attribute locations have to be the same in the re-linked program. In order to guarantee this, it's 
+		necessary to call getActiveAttrib on the original program from 0..getProgramParameter(program, ACTIVE_ATTRIBUTES), 
+		record the locations of those attributes, and then call bindAttribLocation on the program object for each of them, 
+		to re-assign them before re-linking. Otherwise you're leaving it to chance that the OpenGL implementation 
+		will assign the vertex attributes to the same locations.
+		*/
+
+		for( var j = 0; j < program.attributes.length; j++ ) {
+			var u = program.attributes[ j ];
+			u.index = references.getAttribLocation.apply( u.gl, [ program.program, u.name ] );
+
+			references.bindAttribLocation.apply( gl, [ p, u.index, u.name ] );
+
+			if( u.size ) {
+				references.vertexAttribPointer.apply( u.gl, [ u.index, u.size, u.type, u.normalized, u.stride, u.offset ] );
+				/*var err = gl.getError();
+				if( err ) {
+					debugger;
+				}*/
+			}
+
+			references.enableVertexAttribArray.apply( u.gl, [ u.index ] );
+			/*var err = gl.getError();
+			if( err ) {
+				debugger;
+			}*/
+		
+			logMsg( 'updated attribute location ' + u.name );
+		}
+
+		this.references.useProgram.apply( gl, [ currentProgram ] );
+
+		logMsg( 'updated Program', id );
+
+	}
+
 	window.UIProgramSelected = function( id ) {
 
-		var p = findProgram( id );
-		selectProgram( p );
-		log( 'Selected', p );
-
-		vsSource = p.vertexShaderSource;
-		fsSource = p.fragmentShaderSource;
-
-		window.postMessage( { source: 'WebGLShaderEditor', method: 'setVSSource', code: vsSource }, '*');
-		window.postMessage( { source: 'WebGLShaderEditor', method: 'setFSSource', code: fsSource }, '*');
+		onSelectProgram( id );
 
 	}
 
@@ -509,15 +520,13 @@ function f() {
 		log( 'UIProgramHovered' );
 
 		var p = findProgram( id );
-		selectProgram( p );
-
 		var vs = p.vertexShaderSource;
 		var fs = p.fragmentShaderSource;
 
 		fs = fs.replace( /\s+main\s*\(/, ' ShaderEditorInternalMain(' );
 		fs += '\r\n' + 'void main() { ShaderEditorInternalMain(); gl_FragColor.rgb *= vec3(1.,0.,1.); }';
 
-		update( vs, fs );
+		onUpdateProgram( id, vs, fs );
 
 	}
 
@@ -526,34 +535,33 @@ function f() {
 		log( 'UIProgramOut' );
 
 		var p = findProgram( id );
-		selectProgram( p );
-
 		var vs = p.vertexShaderSource;
 		var fs = p.fragmentShaderSource;
 
-		update( vs, fs );
+		onUpdateProgram( id, vs, fs );
 
 	}
 
-	window.UIVSUpdate = function( src ) {
+	window.UIVSUpdate = function( id, src ) {
 
 		log( 'UPDATE VS' );
-		vsSource = atob( src );
-		update();
+		onUpdateVSource( id, atob( src ) );
+		onUpdateProgram( id );
 
 	}
 
-	window.UIFSUpdate = function( src ) {
+	window.UIFSUpdate = function( id, src ) {
 
 		log( 'UPDATE FS' );
-		fsSource = atob( src );
-		update();
-		
+		onUpdateFSource( id, atob( src ) );
+		onUpdateProgram( id );
+	
 	}
 
 	window.addEventListener( 'load', function() {
 		window.postMessage( { source: 'WebGLShaderEditor', method: 'init' }, '*');
 	} );
+
 
 }
 
@@ -574,6 +582,12 @@ var button = document.getElementById( 'reload' ),
 	vSFooter = document.getElementById( 'vs-count' ),
 	fSFooter = document.getElementById( 'fs-count' ),
 	log = document.getElementById( 'log' );
+
+var verbose = false;
+if( verbose ) {
+	log.style.left = '50%';
+	container.style.right= '50%';
+}
 
 function logMsg() {
 
@@ -648,7 +662,7 @@ function updateVSCode() {
 	if( testShader( gl.VERTEX_SHADER, source, vSEditor ) ){
 		vsPanel.classList.add( 'compiled' );
 		vsPanel.classList.remove( 'not-compiled' );
-		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + btoa( source ) + '\' )' );
+		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + selectedProgram + '\', \'' + btoa( source ) + '\' )' );
 	} else {
 		vsPanel.classList.remove( 'compiled' );
 		vsPanel.classList.add( 'not-compiled' );
@@ -663,7 +677,7 @@ function updateFSCode() {
 	if( testShader( gl.FRAGMENT_SHADER, source, fSEditor ) ){
 		fsPanel.classList.add( 'compiled' );
 		fsPanel.classList.remove( 'not-compiled' );
-		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + btoa( source ) + '\' )' );
+		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + selectedProgram + '\', \'' + btoa( source ) + '\' )' );
 	} else {
 		fsPanel.classList.add( 'compiled' );
 		fsPanel.classList.remove( 'not-compiled' );
@@ -690,6 +704,8 @@ function selectProgram( li ) {
 	li.classList.add( 'active' );
 
 }
+
+var selectedProgram = null;
 
 backgroundPageConnection.onMessage.addListener( function( msg ) {
 
@@ -728,14 +744,15 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			li.textContent = 'Program ' + list.children.length;//msg.uid;
 			li.addEventListener( 'click', function() {
 				selectProgram( this );
+				selectedProgram = msg.uid;
 				chrome.devtools.inspectedWindow.eval( 'UIProgramSelected( \'' + msg.uid + '\' )' );
 			} );
-			/*li.addEventListener( 'mouseover', function() {
+			li.addEventListener( 'mouseover', function() {
 				chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
 			} );
 			li.addEventListener( 'mouseout', function() {
 				chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
-			} );*/
+			} );
 			list.appendChild( li );
 			break;
 		case 'setVSSource' :
