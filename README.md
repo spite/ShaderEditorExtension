@@ -69,6 +69,7 @@ Nice to have:
 - v1.0.4 fixed some shaders not compiling (issue #4)
 - v1.0.5 fixes and compiler status
 - v1.0.6 redone main code, highlight brough back
+- v1.0.7 error checks for attributes (possible bug?)
 
 #### License ####
 
