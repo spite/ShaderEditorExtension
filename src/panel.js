@@ -298,12 +298,18 @@ function f() {
 	WebGLRenderingContext.prototype.enableVertexAttribArray = function( index ) {
 
 		var program = this.getParameter( this.CURRENT_PROGRAM );
-		var p = findProgramById( program.__uuid );
-		var a = findAttributeByIndex( p, index );
-
+		if( program ) {
+			var p = findProgramById( program.__uuid );
+			if( p ) {
+				var a = findAttributeByIndex( p, index );
+				if( a ) {
+					index = a.index;
+				}
+			}
+		}
 		//logMsg( 'enableVertexAttribArray ', p.program.__uuid, a.index, ' (' + a.name + ')' )
 
-		var res = references.enableVertexAttribArray.apply( this, [ a.index ] );
+		var res = references.enableVertexAttribArray.apply( this, [ index ] );
 		return res;
 
 	} 
@@ -312,17 +318,26 @@ function f() {
 
 		var program = this.getParameter( this.CURRENT_PROGRAM );
 		var p = findProgramById( program.__uuid );
-		var a = findAttributeByIndex( p, index );
+		if( p ) {
 
-		a.size = size;
-		a.type = type;
-		a.normalized = normalized;
-		a.stride = stride;
-		a.offset = offset;
+			var a = findAttributeByIndex( p, index );
+			if( a ) {
 
+				a.size = size;
+				a.type = type;
+				a.normalized = normalized;
+				a.stride = stride;
+				a.offset = offset;
+
+				index = a.index;
+
+			}
+
+		}
+		
 		//logMsg( 'vertexAttribPointer ', p.program.__uuid, a.index, ' (' + a.name + ')' )
 
-		var res = references.vertexAttribPointer.apply( this, [ a.index, size, type, normalized, stride, offset ] );
+		var res = references.vertexAttribPointer.apply( this, [ index, size, type, normalized, stride, offset ] );
 		return res;
 
 	} 
@@ -348,6 +363,7 @@ function f() {
 				var gl = res.p.gl;
 				var l = res.u.location;
 				
+				references.useProgram.apply( gl, [ res.p.program ] );
 				var a = [], aa = [];
 				a.push( l );
 				for( var j = 1; j < args.length; j++ ) {
