@@ -49,7 +49,7 @@ Changing stuff in several places probably isn't tracked correctly, so if you edi
 As always: forks, pull requests and code critiques are welcome!
 
 - Detect when the page is reloaded or changed [Issue #1](https://github.com/spite/ShaderEditorExtension/issues/1)
-~~- Highlight shaders when hovering over list item [Issue #3](https://github.com/spite/ShaderEditorExtension/issues/3)~~
+- ~~Highlight shaders when hovering over list item [Issue #3](https://github.com/spite/ShaderEditorExtension/issues/3)~~
 - Check why some pages don't load (like http://david.li/flow/) [Issue #4](https://github.com/spite/ShaderEditorExtension/issues/4)
 - Figure out why it doesn't .postMessage the first time it's injected [Issue #5](https://github.com/spite/ShaderEditorExtension/issues/5)
 - Figure out why it doesn't work on Android over remote debugging [Issue #6](https://github.com/spite/ShaderEditorExtension/issues/6)
