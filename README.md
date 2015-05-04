@@ -8,8 +8,6 @@ Twin project of [Web Audio API Editor Extension for Google Chrome](https://githu
 
 [Install the extension from the Chrome Store](https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob)
 
-Alternatively [download the extension (.crx)](/extension/ShaderEditor.crx)
-
 Some more info about this project: [Creating a Plug'n Play Live WebGL Shader Editor](http://www.clicktorelease.com/blog/live-webgl-shader-editor)
 
 ### How to install ###
@@ -70,6 +68,7 @@ Nice to have:
 - v1.0.3 rolled back, colouring introducing bugs
 - v1.0.4 fixed some shaders not compiling (issue #4)
 - v1.0.5 fixes and compiler status
+- v1.0.6 redone main code, highlight brough back
 
 #### License ####
 
