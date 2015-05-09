@@ -2,7 +2,13 @@
 	"name": "Shader Editor",
 	"version": "1.0.7",
 	"minimum_chrome_version": "10.0",
-    "devtools_page": "devtools.html",
+	"devtools_page": "devtools.html",
+	"icons": {
+		"128": "icon_128.png",
+		"48": "icon_48.png",
+		"16": "icon_16.png"
+	},
+	"description": "Live editing shaders in the browser.",
 	"background": {
 		"scripts": [
 			"background.js"
