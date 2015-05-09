@@ -263,6 +263,13 @@ function f() {
 
 	}
 
+	WebGLRenderingContext.prototype.getExtension = _h( 
+		WebGLRenderingContext.prototype.getExtension, 
+		function( res, args ) {
+			window.postMessage( { source: 'WebGLShaderEditor', method: 'getExtension', extension: args[ 0 ] }, '*' );	
+		}
+	);
+
 	WebGLRenderingContext.prototype.bindAttribLocation = function( program, index, name ) {
 
 		var p = findProgram( program.__uuid );
