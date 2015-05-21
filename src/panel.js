@@ -569,7 +569,7 @@ function f() {
 	window.UIVSUpdate = function( id, src ) {
 
 		log( 'UPDATE VS' );
-		onUpdateVSource( id, atob( src ) );
+		onUpdateVSource( id, decodeURIComponent( src ) );
 		onUpdateProgram( id );
 
 	}
@@ -577,7 +577,7 @@ function f() {
 	window.UIFSUpdate = function( id, src ) {
 
 		log( 'UPDATE FS' );
-		onUpdateFSource( id, atob( src ) );
+		onUpdateFSource( id, decodeURIComponent( src ) );
 		onUpdateProgram( id );
 	
 	}
@@ -699,7 +699,7 @@ function updateVSCode() {
 	if( testShader( gl.VERTEX_SHADER, source, vSEditor ) ){
 		vsPanel.classList.add( 'compiled' );
 		vsPanel.classList.remove( 'not-compiled' );
-		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + selectedProgram + '\', \'' + btoa( source ) + '\' )' );
+		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + selectedProgram + '\', \'' + encodeURIComponent( source ) + '\' )' );
 	} else {
 		vsPanel.classList.remove( 'compiled' );
 		vsPanel.classList.add( 'not-compiled' );
@@ -714,7 +714,7 @@ function updateFSCode() {
 	if( testShader( gl.FRAGMENT_SHADER, source, fSEditor ) ){
 		fsPanel.classList.add( 'compiled' );
 		fsPanel.classList.remove( 'not-compiled' );
-		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + selectedProgram + '\', \'' + btoa( source ) + '\' )' );
+		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + selectedProgram + '\', \'' + encodeURIComponent( source ) + '\' )' );
 	} else {
 		fsPanel.classList.add( 'compiled' );
 		fsPanel.classList.remove( 'not-compiled' );
