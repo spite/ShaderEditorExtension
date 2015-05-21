@@ -610,6 +610,7 @@ var button = document.getElementById( 'reload' ),
 var verbose = false;
 if( verbose ) {
 	log.style.left = '50%';
+	log.style.display = 'block';
 	container.style.right= '50%';
 }
 
