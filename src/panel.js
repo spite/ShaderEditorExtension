@@ -324,24 +324,27 @@ function f() {
 	WebGLRenderingContext.prototype.vertexAttribPointer = function( index, size, type, normalized, stride, offset ) {
 
 		var program = this.getParameter( this.CURRENT_PROGRAM );
-		var p = findProgramById( program.__uuid );
-		if( p ) {
+		if( program ) {
+			var p = findProgramById( program.__uuid );
+			if( p ) {
 
-			var a = findAttributeByIndex( p, index );
-			if( a ) {
+				var a = findAttributeByIndex( p, index );
+				if( a ) {
 
-				a.size = size;
-				a.type = type;
-				a.normalized = normalized;
-				a.stride = stride;
-				a.offset = offset;
+					a.size = size;
+					a.type = type;
+					a.normalized = normalized;
+					a.stride = stride;
+					a.offset = offset;
 
-				index = a.index;
+					index = a.index;
+
+				}
 
 			}
-
-		}
 		
+		}
+
 		//logMsg( 'vertexAttribPointer ', p.program.__uuid, a.index, ' (' + a.name + ')' )
 
 		var res = references.vertexAttribPointer.apply( this, [ index, size, type, normalized, stride, offset ] );
