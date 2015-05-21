@@ -461,7 +461,6 @@ function f() {
 		references.shaderSource.apply( gl, [ vs, vSource != null ? vSource : program.vertexShaderSource ] );
 		references.compileShader.apply( gl, [ vs ] );
 		if (!gl.getShaderParameter( vs, gl.COMPILE_STATUS ) ) {
-			debugger;
 			logMsg( gl.getShaderInfoLog( vs ) );
 			return;
 		}
@@ -471,7 +470,6 @@ function f() {
 		references.shaderSource.apply( gl, [ fs, fSource != null ? fSource : program.fragmentShaderSource ] );
 		references.compileShader.apply( gl, [ fs ] );
 		if (!gl.getShaderParameter( fs, gl.COMPILE_STATUS ) ) {
-			debugger;
 			logMsg( gl.getShaderInfoLog( fs ) );
 			return;
 		}
