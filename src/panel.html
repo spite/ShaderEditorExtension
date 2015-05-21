@@ -13,7 +13,7 @@
 body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #reload{ padding: 10px; cursor: pointer;}
 #container{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: none; }
-#list{ position: absolute; left: 0; width: 200px; top: 0; bottom: 0; listy-style-type: none; background-color: #eee; overflow: auto; }
+#list{ position: absolute; left: 0; width: 200px; top: 0; bottom: 25px; listy-style-type: none; background-color: #eee; overflow: auto; }
 #list li { padding: 5px 10px; border-bottom: 1px solid #e5e5e5; cursor: pointer; }
 #list li:hover{ background-color: rgba(56, 121, 217, 0.1); }
 #list li.active{ background-color: rgb(56, 121, 217); color: white;}
@@ -43,12 +43,20 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #log{ position: absolute;left: 50%; top:0;right: 0; bottom: 0; overflow: auto; display: none;}
 .compiled{ background-color: #2fb600; color: white;}
 .not-compiled{ background-color: #b60000; color: white;}
+#settingsPanel{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: white; padding: 40px; display: none;}
+#settingsPanel h1{ margin-bottom: 10px;}
+#settingsPanel input[type="checkbox"]{ margin-right: 5px;}
+#toolbarContainer{ position: absolute; left: 0; bottom: 0; height: 25px; width: 200px; }
+#toolbarContainer li{ width: 25px; height: 25px; float: left; }
+#toolbarContainer a{ width: 21px; height: 21px; margin: 2px; display: block; background-repeat: no-repeat; background-position: 50% 50%; background-size: contain;}
+#settingsButton{ background-image: url( assets/gears.svg ); }
+#highlightButton{ background-image: url( assets/eye.svg ); }
 </style>
 </head>
 <body>
 <div id="info"><div>
 	<p>Welcome!</p>
-	<h1>WebGL GLSL shader editor extension<br/>v1.0.8 (beta)</h1>
+	<h1>WebGL GLSL shader editor extension<br/>v1.0.9 (beta)</h1>
 	<p>To start tracking the WebGL context,<br/>the extension needs to reload the page.</p>
 	<button id="reload" >Reload</button>
 	<p>Bugs, ideas and feedback: <a rel="external" href="https://github.com/spite/ShaderEditorExtension">GitHub page</a><br/><a rel="external" href="https://twitter.com/thespite" >@thespite</a> | <a rel="external" href="http://www.clicktorelease.com" >www.clicktorelease.com</a></p>
@@ -60,6 +68,10 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 <div id="container" >
 	<ul id="list">
 	</ul>
+	<ul id="toolbarContainer" >
+		<!--<li><a href="#" id="settingsButton"></a></li>-->
+		<li><a href="#" id="highlightButton"></a></li>
+	</ul>
 	<div id="editorContainer">
 		<div id="vs-panel">
 			<div id="vs-footer" class="footer" ><p>Vertex Shader | <span id="vs-count" ></span></p> <a id="vs-format" title="Pretty print" class="go-format" ></a> <a id="vs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
@@ -68,6 +80,10 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 			<div id="fs-footer" class="footer" ><p>Fragment Shader | <span id="fs-count" ></span></p> <a id="fs-format" title="Pretty print" class="go-format" ></a> <a id="fs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
 		</div>
 	</div>
+</div>
+<div id="settingsPanel" >
+	<h1>Settings</h1>
+	<input type="checkbox" id="highlightShaders" value="highlightShaders"></input><label for="highlightShaders" >Highlight shaders</label>
 </div>
 <script src="panel.js"></script>
 </body>

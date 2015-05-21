@@ -666,6 +666,18 @@ var options = {
 	gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
 };
 
+var settings = {
+	highlight: true
+}
+/*var stored = chrome.storage.sync.get( 'highlight', function( i ) {
+
+	logMsg( 'retrieved' );
+	logMsg( i );
+	settings.highlight = i;
+	document.getElementById( 'highlightButton' ).style.opacity = settings.highlight ? 1 : .5;
+
+} );*/
+
 var editorContainer = document.getElementById( 'editorContainer' );
 var vsPanel = document.getElementById( 'vs-panel' );
 var fsPanel = document.getElementById( 'fs-panel' );
@@ -773,10 +785,14 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 				chrome.devtools.inspectedWindow.eval( 'UIProgramSelected( \'' + msg.uid + '\' )' );
 			} );
 			li.addEventListener( 'mouseover', function() {
-				chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
+				if( settings.highlight ) {
+					chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
+				}
 			} );
 			li.addEventListener( 'mouseout', function() {
-				chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
+				if( settings.highlight ) {
+					chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
+				}
 			} );
 			list.appendChild( li );
 			break;
@@ -957,6 +973,19 @@ document.getElementById( 'fs-fullscreen' ).addEventListener( 'click', function( 
 
 	fsPanel.classList.toggle( 'fullscreen' );
 	vsPanel.classList.toggle( 'hide' );
+	e.preventDefault();
+
+} );
+
+document.getElementById( 'highlightButton' ).addEventListener( 'click', function( e ) {
+
+	settings.highlight = !settings.highlight;
+	/*chrome.storage.sync.set( { 'highlight': settings.highlight }, function() {
+		logMsg( 'Saved' )
+	} );*/
+
+	this.style.opacity = settings.highlight ? 1 : .5;
+	
 	e.preventDefault();
 
 } );
