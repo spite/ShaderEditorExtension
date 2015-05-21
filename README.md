@@ -71,6 +71,7 @@ Nice to have:
 - v1.0.6 redone main code, highlight brough back
 - v1.0.7 error checks for attributes (possible bug?)
 - v1.0.8 new icon (thanks @ebraminio & @markusfisch), restored extension support
+- v1.0.9 starting options panel, added setting for highlighting
 
 #### License ####
 
