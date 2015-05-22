@@ -701,8 +701,8 @@ function updateVSCode() {
 		vsPanel.classList.remove( 'not-compiled' );
 		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + selectedProgram + '\', \'' + encodeURIComponent( source ) + '\' )' );
 	} else {
-		vsPanel.classList.remove( 'compiled' );
 		vsPanel.classList.add( 'not-compiled' );
+		vsPanel.classList.remove( 'compiled' );
 	}
 
 }
@@ -716,8 +716,8 @@ function updateFSCode() {
 		fsPanel.classList.remove( 'not-compiled' );
 		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + selectedProgram + '\', \'' + encodeURIComponent( source ) + '\' )' );
 	} else {
-		fsPanel.classList.add( 'compiled' );
-		fsPanel.classList.remove( 'not-compiled' );
+		fsPanel.classList.add( 'not-compiled' );
+		fsPanel.classList.remove( 'compiled' );
 	}
 
 }
