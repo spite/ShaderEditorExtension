@@ -9,8 +9,8 @@ function f() {
 	function log() {}
 	function error() {}
 
-	//function log( msg ) { logMsg( 'LOG: ' + msg )}
-	//function error( msg ) { logMsg( 'ERROR: ' + msg )}
+	function log( msg ) { logMsg( 'LOG: ' + msg )}
+	function error( msg ) { logMsg( 'ERROR: ' + msg )}
 
 	function logMsg() { 
 
@@ -566,10 +566,30 @@ function f() {
 
 	}
 
+	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+	function decodeSource( input ) {
+
+		var str = String(input).replace(/=+$/, '');
+		if (str.length % 4 == 1) {
+			throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
+		}
+		for (
+			var bc = 0, bs, buffer, idx = 0, output = '';
+			buffer = str.charAt(idx++);
+			~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+				bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+			) {
+			buffer = chars.indexOf(buffer);
+	}
+	return output;
+
+}
+
 	window.UIVSUpdate = function( id, src ) {
 
 		log( 'UPDATE VS' );
-		onUpdateVSource( id, decodeURIComponent( src ) );
+		onUpdateVSource( id, decodeSource( src ) );
 		onUpdateProgram( id );
 
 	}
@@ -577,7 +597,7 @@ function f() {
 	window.UIFSUpdate = function( id, src ) {
 
 		log( 'UPDATE FS' );
-		onUpdateFSource( id, decodeURIComponent( src ) );
+		onUpdateFSource( id, decodeSource( src ) );
 		onUpdateProgram( id );
 	
 	}
@@ -692,6 +712,24 @@ fSEditor._errors = [];
 vSEditor.getWrapperElement().setAttribute( 'id', 'vsEditor' );
 fSEditor.getWrapperElement().setAttribute( 'id', 'fsEditor' );
 
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+function encodeSource(input) {
+	var str = String(input);
+	for (
+		var block, charCode, idx = 0, map = chars, output = '';
+		str.charAt(idx | 0) || (map = '=', idx % 1);
+		output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+		) {
+			charCode = str.charCodeAt(idx += 3/4);
+		if (charCode > 0xFF) {
+			throw new InvalidCharacterError("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+		}
+		block = block << 8 | charCode;
+	}
+	return output;
+}
+
 function updateVSCode() {
 
 	updateVSCount();
@@ -699,7 +737,7 @@ function updateVSCode() {
 	if( testShader( gl.VERTEX_SHADER, source, vSEditor ) ){
 		vsPanel.classList.add( 'compiled' );
 		vsPanel.classList.remove( 'not-compiled' );
-		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + selectedProgram + '\', \'' + encodeURIComponent( source ) + '\' )' );
+		chrome.devtools.inspectedWindow.eval( 'UIVSUpdate( \'' + selectedProgram + '\', \'' + encodeSource( source ) + '\' )' );
 	} else {
 		vsPanel.classList.add( 'not-compiled' );
 		vsPanel.classList.remove( 'compiled' );
@@ -714,7 +752,8 @@ function updateFSCode() {
 	if( testShader( gl.FRAGMENT_SHADER, source, fSEditor ) ){
 		fsPanel.classList.add( 'compiled' );
 		fsPanel.classList.remove( 'not-compiled' );
-		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + selectedProgram + '\', \'' + encodeURIComponent( source ) + '\' )' );
+		chrome.devtools.inspectedWindow.eval( 'UIFSUpdate( \'' + selectedProgram + '\', \'' + encodeSource( source ) + '\' )' );
+
 	} else {
 		fsPanel.classList.add( 'not-compiled' );
 		fsPanel.classList.remove( 'compiled' );
@@ -850,11 +889,10 @@ var gl = document.createElement( 'canvas' ).getContext( 'webgl' );
 
 function testShader( type, source, code ) {
 
-	if( source === '' ) return;
-
-	var s = gl.createShader( type );
-	gl.shaderSource( s, source + "\r\n" );
-	gl.compileShader( s );
+	if( source === '' ) {
+		logMsg( 'NO SOURCE TO TEST' );
+		return false;
+	}
 
 	while( code._errors.length > 0 ) {
 
@@ -863,61 +901,75 @@ function testShader( type, source, code ) {
 
 	}
 
-	if ( gl.getShaderParameter( s, gl.COMPILE_STATUS ) === false ) {
+	var s = gl.createShader( type );
+	gl.shaderSource( s, source );
+	gl.compileShader( s );
 
-		var err = gl.getShaderInfoLog( s );
+	var success = gl.getShaderParameter( s, gl.COMPILE_STATUS );
+	var err = gl.getShaderInfoLog( s );
+	logMsg( 'ERR:[' + err + ']' );
 
-		if( err==null ) {
-		}
-		else
-		{
+	if( !success || err !== '' ) {
+
+		if( err ) {
 
 			var lineOffset = 0;
-			var lines = err.match(/^.*((\r\n|\n|\r)|$)/gm);
-			for( var i=0; i<lines.length; i++ )
-			{
+			err = err.replace(/(\r\n|\n|\r)/gm, "" );
+
+			var lines = [];
+			var re = /(error|warning):/gi;
+			var matches = [];
+			while ((match = re.exec(err)) != null) {
+				matches.push( match.index );
+			}
+			matches.push( err.length );
+			for( var j = 0; j < matches.length - 1; j++ ) {
+				var p = matches[ j ];
+				lines.push( err.substr( p, matches[ j + 1 ] - p ) );
+			}
+
+			for( var j = 0; j < lines.length; j++ ) {
+				logMsg( '[[' + lines[ j ] + ']]' );
+			}
+
+			for( var i=0; i<lines.length; i++ ) {
+
 				var parts = lines[i].split(":");
-				if( parts.length===5 || parts.length===6 )
-				{
+
+				if( parts.length===5 || parts.length===6 ) {
+
 					var lineNumber = parseInt( parts[2] ) - lineOffset;
+					if( isNaN( lineNumber ) ) lineNumber = 1;
+
 					var msg = document.createElement("div");
 					msg.appendChild(document.createTextNode( parts[3] + " : " + parts[4] ));
 					msg.className = "errorMessage";
 					var mark = code.addLineWidget( lineNumber - 1, msg, {coverGutter: false, noHScroll: true} );
 
 					code._errors.push( mark );
-				}
-				else if( lines[i] != null && lines[i]!="" && lines[i].length>1 && parts[0]!="Warning")
-				{
-					log( parts.length + " **" + lines[i] );
 
-					var txt = "";
-					if( parts.length==4 )
-						txt = parts[2] + " : " + parts[3];
-					else
-						txt = "Unknown error";
+				} else if( lines[i] != null && lines[i]!="" && lines[i].length>1 && parts[0].toUpperCase() != "WARNING") {
 
+					//logMsg( parts.length + " **" + lines[i] );
+
+					var txt = 'Unknown error';
+					if( parts.length == 4 )
+						txt = parts[ 2 ] + ' : ' + parts[ 3 ];
+					
 					var msg = document.createElement("div");
 					msg.appendChild(document.createTextNode( txt ));
 					msg.className = "errorMessage";
 					var mark = code.addLineWidget( 0, msg, {coverGutter: false, noHScroll: true, above: true} );
+
 					code._errors.push( mark );
 
 				}
 			}
 		}
-		return false;
-
+		
 	}
 
-	if ( gl.getShaderInfoLog( s ) !== '' ) {
-
-		error( 'gl.getShaderInfoLog()', gl.getShaderInfoLog( s ) );
-		return false;
-
-	}
-
-	return true;
+	return success;
 
 }
 
