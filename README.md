@@ -72,6 +72,7 @@ Nice to have:
 - v1.0.7 error checks for attributes (possible bug?)
 - v1.0.8 new icon (thanks @ebraminio & @markusfisch), restored extension support
 - v1.0.9 starting options panel, added setting for highlighting
+- v1.0.10 improved error reporting, several fixes
 
 #### License ####
 
