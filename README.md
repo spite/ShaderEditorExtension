@@ -74,6 +74,7 @@ Nice to have:
 - v1.0.9 starting options panel, added setting for highlighting
 - v1.0.10 improved error reporting, several fixes
 - v1.0.11 fixed bug with uniform retrieving: shadertoy and other cool sites supported!
+- v1.0.12 fix for three.js
 
 #### License ####
 
