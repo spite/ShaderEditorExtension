@@ -372,6 +372,8 @@ function f() {
 
 		WebGLRenderingContext.prototype[ f ] = function() {
 
+			//if( args === null || args === undefined ) return;
+
 			var args = arguments;
 			var res = findProgramByLocation( args[ 0 ] );
 			if( res ) {
@@ -379,7 +381,7 @@ function f() {
 				var gl = res.p.gl;
 				var l = res.u.location;
 				
-				//references.useProgram.apply( gl, [ res.p.program ] );
+				references.useProgram.apply( gl, [ res.p.program ] );
 				var a = [], aa = [];
 				a.push( l );
 				for( var j = 1; j < args.length; j++ ) {
@@ -640,7 +642,7 @@ var button = document.getElementById( 'reload' ),
 	fSFooter = document.getElementById( 'fs-count' ),
 	log = document.getElementById( 'log' );
 
-var verbose = false;
+var verbose = true;
 if( verbose ) {
 	log.style.left = '50%';
 	log.style.display = 'block';
