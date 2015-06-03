@@ -372,7 +372,7 @@ function f() {
 
 		WebGLRenderingContext.prototype[ f ] = function() {
 
-			//if( args === null || args === undefined ) return;
+			if( args === null || args === undefined ) return;
 
 			var args = arguments;
 			var res = findProgramByLocation( args[ 0 ] );
@@ -642,7 +642,7 @@ var button = document.getElementById( 'reload' ),
 	fSFooter = document.getElementById( 'fs-count' ),
 	log = document.getElementById( 'log' );
 
-var verbose = true;
+var verbose = false;
 if( verbose ) {
 	log.style.left = '50%';
 	log.style.display = 'block';
