@@ -162,6 +162,7 @@ function f() {
 
 			var s = findShader( args[ 0 ] );
 			s.source = args[ 1 ];
+			//debugger;
 			//logMsg( 'shaderSource', s.source );
 
 		} 
@@ -190,10 +191,14 @@ function f() {
 
 	WebGLRenderingContext.prototype.useProgram = function( p ) {
 
-		var program = findOriginalProgram( p.__uuid );
-		currentProgram = program;
-		//logMsg( '>>> useProgram', p.__uuid )
-		references.useProgram.apply( program.gl, [ program.program ] );
+		if( p && p.__uuid ) {
+			var program = findOriginalProgram( p.__uuid );
+			currentProgram = program;
+			//logMsg( '>>> useProgram', p.__uuid )
+			references.useProgram.apply( program.gl, [ program.program ] );
+		} else {
+			references.useProgram.apply( this, [ null ] );	
+		}
 
 	};
 
@@ -203,7 +208,7 @@ function f() {
 
 		for( var j = 0; j < p.uniforms.length; j++ ) {
 			if( p.uniforms[ j ].name === name ) {
-				return p.uniforms[ j ].location;
+				return p.uniforms[ j ].originalLocation;
 			}
 		}
 
@@ -221,7 +226,7 @@ function f() {
 				gl: this
 			} );
 
-			logMsg( 'Added uniform location ' + name );
+			logMsg( 'Added uniform location ' + name + ' ' + res.__uuid );
 		}
 		return res;
 
@@ -363,6 +368,7 @@ function f() {
 	methods.forEach( function( f ) {
 
 		references[ f ] = WebGLRenderingContext.prototype[ f ];
+		var count = 0;
 
 		WebGLRenderingContext.prototype[ f ] = function() {
 
@@ -373,7 +379,7 @@ function f() {
 				var gl = res.p.gl;
 				var l = res.u.location;
 				
-				references.useProgram.apply( gl, [ res.p.program ] );
+				//references.useProgram.apply( gl, [ res.p.program ] );
 				var a = [], aa = [];
 				a.push( l );
 				for( var j = 1; j < args.length; j++ ) {
@@ -382,6 +388,11 @@ function f() {
 				}
 				references[ f ].apply( gl, a );
 
+				/*if( count++ > 100 ) {
+					logMsg( 'ORIG: ' + args[ 0 ].__uuid + ' ' + res.u.name + ' MAPS TO ' + res.u.location.__uuid + ' VAL: ' + args[ 1 ] );
+					count = 0;
+				}*/
+
 				/*var err = gl.getError();
 				if( err ) {
 					debugger;
@@ -389,6 +400,8 @@ function f() {
 
 				res.u.value = aa;
 				res.u.type = f;
+			} else {
+				logMsg( 'Program by location ' + args[ 0 ].__uuid + ' not found' );
 			}
 
 		}
@@ -404,8 +417,8 @@ function f() {
 			for( var k = 0; k < p.uniforms.length; k++ ) {
 
 				var u = p.uniforms[ k ];
-
-				if( u.originalLocation === location ) {
+				
+				if( u.originalLocation.__uuid === location.__uuid ) {
 					
 					return { p: p, u: u };
 
@@ -935,6 +948,8 @@ function testShader( type, source, code ) {
 			for( var i=0; i<lines.length; i++ ) {
 
 				var parts = lines[i].split(":");
+				
+				var isWarning = parts[0].toUpperCase() === "WARNING";
 
 				if( parts.length===5 || parts.length===6 ) {
 
@@ -943,14 +958,14 @@ function testShader( type, source, code ) {
 
 					var msg = document.createElement("div");
 					msg.appendChild(document.createTextNode( parts[3] + " : " + parts[4] ));
-					msg.className = "errorMessage";
+					msg.className = isWarning?'warningMessage':'errorMessage';
 					var mark = code.addLineWidget( lineNumber - 1, msg, {coverGutter: false, noHScroll: true} );
 
 					code._errors.push( mark );
 
 				} else if( lines[i] != null && lines[i]!="" && lines[i].length>1 && parts[0].toUpperCase() != "WARNING") {
 
-					//logMsg( parts.length + " **" + lines[i] );
+					logMsg( parts[ 0 ] );
 
 					var txt = 'Unknown error';
 					if( parts.length == 4 )
@@ -958,12 +973,13 @@ function testShader( type, source, code ) {
 					
 					var msg = document.createElement("div");
 					msg.appendChild(document.createTextNode( txt ));
-					msg.className = "errorMessage";
+					msg.className = isWarning?'warningMessage':'errorMessage';
 					var mark = code.addLineWidget( 0, msg, {coverGutter: false, noHScroll: true, above: true} );
 
 					code._errors.push( mark );
 
 				}
+
 			}
 		}
 		
