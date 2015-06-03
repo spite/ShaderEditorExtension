@@ -372,9 +372,9 @@ function f() {
 
 		WebGLRenderingContext.prototype[ f ] = function() {
 
-			if( args === null || args === undefined ) return;
-
 			var args = arguments;
+			if( args[ 0 ] === null || args[ 0 ] === undefined ) return;
+			
 			var res = findProgramByLocation( args[ 0 ] );
 			if( res ) {
 
@@ -411,6 +411,8 @@ function f() {
 	} );
 
 	function findProgramByLocation( location ) {
+
+		if( location === null || location === undefined ) return null;
 
 		for( var j in programs ) {
 
