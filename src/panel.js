@@ -709,7 +709,7 @@ logMsg( 'starting' );
 button.addEventListener( 'click', function( e ) {
 	chrome.devtools.inspectedWindow.reload( {
 		ignoreCache: true, 
-    	injectedScript: '(' + f.toString() + ')()'
+		//injectedScript: '(' + f.toString() + ')()'
 	} );
 } );
 
@@ -856,9 +856,30 @@ function updateProgramName( i, type, name ) {
 
 }
 
+function tearDown() {
+
+	selectedProgram = null;
+	programs = [];
+	vSEditor.setValue( '' );
+	vsPanel.classList.remove( 'not-compiled' );
+	vsPanel.classList.remove( 'compiled' );
+	vSFooter.textContent = '';
+	fSEditor.setValue( '' );
+	fsPanel.classList.remove( 'not-compiled' );
+	fsPanel.classList.remove( 'compiled' );
+	fSFooter.textContent = '';
+	while( list.firstChild ) list.removeChild( list.firstChild );
+
+}
+
 backgroundPageConnection.onMessage.addListener( function( msg ) {
 
 	switch( msg.method ) {
+		case 'inject':
+			logMsg( 'inject' );
+			tearDown();
+			logMsg( chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ) ); 
+			break;
 		case 'onCommitted':
 			//chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ); // this gets appended AFTER the page
 			/*chrome.devtools.inspectedWindow.reload( {
