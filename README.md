@@ -48,7 +48,7 @@ Changing stuff in several places probably isn't tracked correctly, so if you edi
 
 As always: forks, pull requests and code critiques are welcome!
 
-- Detect when the page is reloaded or changed [Issue #1](https://github.com/spite/ShaderEditorExtension/issues/1)
+- ~~Detect when the page is reloaded or changed [Issue #1](https://github.com/spite/ShaderEditorExtension/issues/1)~~
 - ~~Highlight shaders when hovering over list item [Issue #3](https://github.com/spite/ShaderEditorExtension/issues/3)~~
 - Check why some pages don't load (like http://david.li/flow/) [Issue #4](https://github.com/spite/ShaderEditorExtension/issues/4)
 - Figure out why it doesn't .postMessage the first time it's injected [Issue #5](https://github.com/spite/ShaderEditorExtension/issues/5)
@@ -56,7 +56,7 @@ As always: forks, pull requests and code critiques are welcome!
 
 Nice to have:
 
-- Save to disk (?)
+- Save to disk (?) - Not possible for now with the DevTools API
 - Add uniform tracking to display values fed to the shader
 - Integrating @zz85's GLSL Optimizer? (https://github.com/zz85/glsl-optimizer)
 
@@ -75,6 +75,7 @@ Nice to have:
 - v1.0.10 improved error reporting, several fixes
 - v1.0.11 fixed bug with uniform retrieving: shadertoy and other cool sites supported!
 - v1.0.12 fix for three.js
+- v1.0.13 support for live reload across browsing session (https://github.com/spite/ShaderEditorExtension/issues/1)
 
 #### License ####
 
