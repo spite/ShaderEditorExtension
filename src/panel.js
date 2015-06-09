@@ -83,6 +83,12 @@ function f() {
 
 	}
 
+	function setShaderName( id, type, name ) {
+
+		window.postMessage( { source: 'WebGLShaderEditor', method: 'setShaderName', uid: id, type: type, name: name }, '*');
+
+	}
+
 	function addShader( shader, type ) {
 
 		shaders[ shader.__uuid ] = { shader: shader, type: type };
@@ -162,6 +168,8 @@ function f() {
 
 			var s = findShader( args[ 0 ] );
 			s.source = args[ 1 ];
+			s.name = extractShaderName( s.source );
+
 			//debugger;
 			//logMsg( 'shaderSource', s.source );
 
@@ -178,10 +186,12 @@ function f() {
 			if( s.type == p.gl.VERTEX_SHADER ) {
 				p.vertexShader = s;
 				p.vertexShaderSource = s.source;
+				setShaderName( p.original.__uuid, s.type, s.name );
 			}
 			if( s.type == p.gl.FRAGMENT_SHADER ) {
 				p.fragmentShader = s;
 				p.fragmentShaderSource = s.source;
+				setShaderName( p.original.__uuid, s.type, s.name );
 			}
 
 		} 
@@ -463,6 +473,22 @@ function f() {
 			
 	}
 
+	function extractShaderName( source ) {
+
+		var name = '';
+
+		var re = /#define[\s]+SHADERNAME[\s]+([\S]*)/gi;
+		if ((m = re.exec( source)) !== null) {
+		    if (m.index === re.lastIndex) {
+		        re.lastIndex++;
+		    }
+			name = m[ 1 ];
+		}
+
+		return name;
+
+	}
+
 	function onUpdateProgram( id, vSource, fSource ) {
 
 		logMsg( 'update', id );
@@ -475,21 +501,25 @@ function f() {
 		p.version = program.program.version + 1;
 
 		var vs = references.createShader.apply( gl, [ gl.VERTEX_SHADER ] );
-		references.shaderSource.apply( gl, [ vs, vSource != null ? vSource : program.vertexShaderSource ] );
+		var source = vSource != null ? vSource : program.vertexShaderSource;
+		references.shaderSource.apply( gl, [ vs, source ] );
 		references.compileShader.apply( gl, [ vs ] );
 		if (!gl.getShaderParameter( vs, gl.COMPILE_STATUS ) ) {
 			logMsg( gl.getShaderInfoLog( vs ) );
 			return;
 		}
+		setShaderName( program.original.__uuid, gl.VERTEX_SHADER, extractShaderName( source ) );
 		references.attachShader.apply( gl, [ p, vs ] );
 
 		var fs = references.createShader.apply( gl, [ gl.FRAGMENT_SHADER ] );
+		var source = fSource != null ? fSource : program.fragmentShaderSource;
 		references.shaderSource.apply( gl, [ fs, fSource != null ? fSource : program.fragmentShaderSource ] );
 		references.compileShader.apply( gl, [ fs ] );
 		if (!gl.getShaderParameter( fs, gl.COMPILE_STATUS ) ) {
 			logMsg( gl.getShaderInfoLog( fs ) );
 			return;
 		}
+		setShaderName( program.original.__uuid, gl.FRAGMENT_SHADER, extractShaderName( source ) );
 		references.attachShader.apply( gl, [ p, fs ] );
 
 		references.linkProgram.apply( gl, [ p ] );
@@ -799,6 +829,32 @@ function selectProgram( li ) {
 }
 
 var selectedProgram = null;
+var programs = {};
+
+function updateProgramName( i, type, name ) {
+
+	logMsg( ' >>>>>> ' + i.id + ' ' + type + ' ' + name );
+
+	if( type === WebGLRenderingContext.VERTEX_SHADER ) {
+		i.vSName = name;
+	}
+	if( type === WebGLRenderingContext.FRAGMENT_SHADER ) {
+		i.fSName = name;
+	}
+
+	if( i.vSName === '' && i.fSName === '' ) {
+		i.name = 'Program ' + i.number;
+	} else {
+		if( i.vSName === i.fSName ) {
+			i.name = i.vSName;
+		} else {
+			i.name = i.vSName + ' / ' + i.fSName;
+		}
+	}
+
+	i.li.textContent = i.name;
+
+}
 
 backgroundPageConnection.onMessage.addListener( function( msg ) {
 
@@ -834,7 +890,6 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			waiting.style.display = 'none';
 			container.style.display = 'block';
 			var li = document.createElement( 'li' );
-			li.textContent = 'Program ' + list.children.length;//msg.uid;
 			li.addEventListener( 'click', function() {
 				selectProgram( this );
 				selectedProgram = msg.uid;
@@ -851,6 +906,20 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 				}
 			} );
 			list.appendChild( li );
+			var d = {
+				id: msg.uid,
+				li: li,
+				vSName: '',
+				fSName: '',
+				name: '',
+				number: list.children.length
+			};
+			programs[ msg.uid ] = d;
+			updateProgramName( d );
+			break;
+		case 'setShaderName':
+			//logMsg( msg.uid, msg.type, msg.name );
+			updateProgramName( programs[ msg.uid ], msg.type, msg.name );
 			break;
 		case 'setVSSource' :
 			vSEditor.setValue( msg.code );
