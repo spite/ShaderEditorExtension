@@ -50,3 +50,50 @@ chrome.tabs.onUpdated.addListener( function( tabId ) {
     connections[ tabId ].postMessage( { method: 'onUpdated' } );
 
 } );*/
+
+chrome.webNavigation.onBeforeNavigate.addListener(function(data) 
+{
+        console.log("onBeforeNavigate: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+});
+
+chrome.webNavigation.onCommitted.addListener(function(data) {
+ 
+  console.log("onCommitted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+ 
+  if( connections[ data.tabId ] ) {
+    if( data.frameId === 0 ) {
+      connections[ data.tabId ].postMessage( { method: 'inject' } );
+    }
+  }
+
+});
+
+chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) 
+{
+        console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+});
+
+chrome.webNavigation.onErrorOccurred.addListener(function(data) 
+{
+        console.log("onErrorOccurred: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId + ". Error: " + data.error);
+});
+
+chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) 
+{
+        console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+});
+
+/*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) 
+{
+        console.log("tabs.onUpdated: " + changeInfo.url + ". Status: " + changeInfo.status + ". Tab: " + tabId);
+});
+
+chrome.history.onVisited.addListener(function(historyItem) 
+{
+        console.log("history.onVisited: " + historyItem.url);
+});*/
+
+chrome.webNavigation.onCompleted.addListener(function(data) 
+        {
+                console.log("onCompleted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+        });
