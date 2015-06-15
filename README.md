@@ -26,9 +26,10 @@ Alternatively, you can pack the extension yourself and load by dropping the .crx
 - Browse to a page with WebGL content (you can find many here http://threejs.org/, here https://www.chromeexperiments.com/webgl or here http://www.webgl.com/)
 - Open DevTools
 - Select the ``Shader Editor`` tab
-- The extension needs to instrument ``WebGLRenderingContext``, so the inspected tab has to be reloaded with the script injected. Hit the ``Reload`` button.
+- The extension needs to instrument ``WebGLRenderingContext``: if you open DevTools after the page has loaded, hit the ``Reload`` button. If the extension was already running, it automatically instruments the page.
 - If there are calls to ``.createProgram``, the UI will show a list
 - Select a program to see its vertex shader and fragment shader
+- Use the Pretty Print icon to make the code more readable; Use the fullscreen button to make the code editor bigger; Use the Eye icon to disable shader highlighting.
 
 ### Stuff that works ###
 
@@ -68,7 +69,7 @@ Nice to have:
 - v1.0.3 rolled back, colouring introducing bugs
 - v1.0.4 fixed some shaders not compiling (issue #4)
 - v1.0.5 fixes and compiler status
-- v1.0.6 redone main code, highlight brough back
+- v1.0.6 redone main code, highlight brought back
 - v1.0.7 error checks for attributes (possible bug?)
 - v1.0.8 new icon (thanks @ebraminio & @markusfisch), restored extension support
 - v1.0.9 starting options panel, added setting for highlighting
