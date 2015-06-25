@@ -77,6 +77,7 @@ Nice to have:
 - v1.0.11 fixed bug with uniform retrieving: shadertoy and other cool sites supported!
 - v1.0.12 fix for three.js
 - v1.0.13 support for live reload across browsing session (https://github.com/spite/ShaderEditorExtension/issues/1)
+- v1.0.14 support for shader/program names [Issue #10](https://github.com/spite/ShaderEditorExtension/issues/10)
 
 #### License ####
 
