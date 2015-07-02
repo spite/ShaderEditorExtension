@@ -496,6 +496,7 @@ function f() {
 		if( name === '' ) {
 
 			//#define SHADER_NAME_B64 44K344Kn44O844OA44O8
+			//#define SHADER_NAME_B64 8J+YjvCfmIE=
 
 			var re = /#define[\s]+SHADER_NAME_B64[\s]+([\S]+)(\n|$)/gi;
 			if ((m = re.exec( source)) !== null) {
@@ -621,7 +622,8 @@ function f() {
 
 		fs = fs.replace( /\s+main\s*\(/, ' ShaderEditorInternalMain(' );
 		fs += '\r\n' + 'void main() { ShaderEditorInternalMain(); gl_FragColor.rgb *= vec3(1.,0.,1.); }';
-
+//		fs += '\r\n' + 'void main() { ShaderEditorInternalMain(); float c = smoothstep( .4, .6, mod( .01 * ( gl_FragCoord.x - gl_FragCoord.y ), 1. ) ); gl_FragColor.rgb = mix( gl_FragColor.rgb, gl_FragColor.rgb * vec3( 1.,0.,1. ), c ); }';
+ 
 		onUpdateProgram( id, vs, fs );
 
 	}
@@ -935,6 +937,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			info.style.display = 'none';
 			waiting.style.display = 'none';
 			container.style.display = 'block';
+			onWindowResize();
 			var li = document.createElement( 'li' );
 			li.addEventListener( 'click', function() {
 				selectProgram( this );
@@ -1108,6 +1111,8 @@ function testShader( type, source, code ) {
 
 }
 
+var optimize_glsl = Module.cwrap('optimize_glsl', 'string', ['string', 'number', 'number']);
+
 document.getElementById( 'vs-format' ).addEventListener( 'click', function( e ) {
 
 	var source = vSEditor.getValue();
@@ -1164,6 +1169,32 @@ document.getElementById( 'fs-fullscreen' ).addEventListener( 'click', function( 
 
 } );
 
+document.getElementById( 'vs-optimise' ).addEventListener( 'click', function( e ) {
+
+	logMsg( 'vs optimise' );
+	var source = vSEditor.getValue();
+
+	var res = optimize_glsl( source, 2, true );
+	vSEditor.setValue( res );
+	updateVSCode();
+
+	e.preventDefault();
+
+} );
+
+document.getElementById( 'fs-optimise' ).addEventListener( 'click', function( e ) {
+
+	logMsg( 'fs optimise' );
+	var source = fSEditor.getValue();
+
+	var res = optimize_glsl( source, 2, false );
+	fSEditor.setValue( res );
+	updateFSCode();
+
+	e.preventDefault();
+
+} );
+
 document.getElementById( 'highlightButton' ).addEventListener( 'click', function( e ) {
 
 	settings.highlight = !settings.highlight;
@@ -1176,3 +1207,11 @@ document.getElementById( 'highlightButton' ).addEventListener( 'click', function
 	e.preventDefault();
 
 } );
+
+window.addEventListener( 'resize', onWindowResize );
+
+function onWindowResize() {
+
+	editorContainer.classList.toggle( 'vertical', editorContainer.clientWidth < editorContainer.clientHeight );
+	
+}
