@@ -373,7 +373,7 @@ function f() {
 		var res = references.vertexAttribPointer.apply( this, [ index, size, type, normalized, stride, offset ] );
 		return res;
 
-	} 
+	};
 
 	var methods = [ 
 		'uniform1f', 'uniform1fv', 'uniform1i', 'uniform1iv', 
@@ -735,6 +735,11 @@ if( verbose ) {
 	log.style.left = '50%';
 	log.style.display = 'block';
 	container.style.right= '50%';
+
+	log.addEventListener( 'click', function( e ) {
+		this.innerHTML = '';
+		e.preventDefault();
+	} );
 }
 
 function logMsg() {
