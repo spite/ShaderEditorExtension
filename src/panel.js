@@ -640,6 +640,35 @@ function f() {
 
 	}
 
+	window.UIProgramDisabled = function( id ) {
+
+		log( 'UIProgramHovered' );
+
+		var p = findProgram( id );
+		var vs = p.vertexShaderSource;
+		var fs = p.fragmentShaderSource;
+
+//		fs = fs.replace( /\s+main\s*\(/, ' ShaderEditorInternalMain(' );
+//		fs += '\r\n' + 'void main() { discard; }';
+		fs = fs.replace( /\s+main\s*\(/, ' ShaderEditorInternalMain(' );
+		fs += '\r\n' + 'void main() { ShaderEditorInternalMain(); discard; }';
+ 
+		onUpdateProgram( id, vs, fs );
+
+	}
+
+	window.UIProgramEnabled = function( id ) {
+
+		log( 'UIProgramOut' );
+
+		var p = findProgram( id );
+		var vs = p.vertexShaderSource;
+		var fs = p.fragmentShaderSource;
+
+		onUpdateProgram( id, vs, fs );
+
+	}
+
 	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 	function decodeSource( input ) {
@@ -879,7 +908,7 @@ function updateProgramName( i, type, name ) {
 		}
 	}
 
-	i.li.textContent = i.name;
+	i.nameSpan.textContent = i.name;
 
 }
 
@@ -939,18 +968,35 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			container.style.display = 'block';
 			onWindowResize();
 			var li = document.createElement( 'li' );
+			var span = document.createElement( 'span' );
+			span.className = 'visibility';
+			span.addEventListener( 'click', function( e ) {
+				this.parentElement.classList.toggle( 'hidden' );
+				if( this.parentElement.classList.contains( 'hidden' ) ) {
+					chrome.devtools.inspectedWindow.eval( 'UIProgramDisabled( \'' + msg.uid + '\' )' );
+				} else {
+					chrome.devtools.inspectedWindow.eval( 'UIProgramEnabled( \'' + msg.uid + '\' )' );
+				}
+				e.preventDefault();
+				e.stopPropagation();
+				return false;
+			} );
+			var nameSpan = document.createElement( 'span' );
+			nameSpan.className = 'name';
+			li.appendChild( span );
+			li.appendChild( nameSpan );
 			li.addEventListener( 'click', function() {
 				selectProgram( this );
 				selectedProgram = msg.uid;
 				chrome.devtools.inspectedWindow.eval( 'UIProgramSelected( \'' + msg.uid + '\' )' );
 			} );
 			li.addEventListener( 'mouseover', function() {
-				if( settings.highlight ) {
+				if( settings.highlight && !this.classList.contains( 'hidden' ) ) {
 					chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
 				}
 			} );
 			li.addEventListener( 'mouseout', function() {
-				if( settings.highlight ) {
+				if( settings.highlight && !this.classList.contains( 'hidden' ) ) {
 					chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
 				}
 			} );
@@ -958,6 +1004,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			var d = {
 				id: msg.uid,
 				li: li,
+				nameSpan: nameSpan,
 				vSName: '',
 				fSName: '',
 				name: '',
