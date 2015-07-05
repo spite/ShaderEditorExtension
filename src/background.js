@@ -53,12 +53,12 @@ chrome.tabs.onUpdated.addListener( function( tabId ) {
 
 chrome.webNavigation.onBeforeNavigate.addListener(function(data) 
 {
-        console.log("onBeforeNavigate: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+        //console.log("onBeforeNavigate: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
 });
 
 chrome.webNavigation.onCommitted.addListener(function(data) {
  
-  console.log("onCommitted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+  //console.log("onCommitted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
  
   if( connections[ data.tabId ] ) {
     if( data.frameId === 0 ) {
@@ -70,17 +70,17 @@ chrome.webNavigation.onCommitted.addListener(function(data) {
 
 chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) 
 {
-        console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+       // console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
 });
 
 chrome.webNavigation.onErrorOccurred.addListener(function(data) 
 {
-        console.log("onErrorOccurred: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId + ". Error: " + data.error);
+      //  console.log("onErrorOccurred: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId + ". Error: " + data.error);
 });
 
 chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) 
 {
-        console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+      //  console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
 });
 
 /*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) 
@@ -95,5 +95,5 @@ chrome.history.onVisited.addListener(function(historyItem)
 
 chrome.webNavigation.onCompleted.addListener(function(data) 
         {
-                console.log("onCompleted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+              //  console.log("onCompleted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
         });
