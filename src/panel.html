@@ -52,14 +52,17 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #settingsPanel{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: white; padding: 40px; display: none;}
 #settingsPanel h1{ margin-bottom: 10px;}
 #settingsPanel input[type="checkbox"]{ margin-right: 5px;}
-#toolbarContainer{ position: absolute; left: 0; bottom: 0; height: 25px; width: 200px; }
+#toolbarContainer{ position: absolute; left: 0; bottom: 0; height: 25px; width: 200px; background-color: #eee; }
 #toolbarContainer li{ width: 25px; height: 25px; float: left; }
 #toolbarContainer a{ width: 21px; height: 21px; margin: 2px; display: block; background-repeat: no-repeat; background-position: 50% 50%; background-size: contain;}
 #settingsButton{ background-image: url(assets/gears.svg); }
 #highlightButton{ background-image: url(assets/eye.svg); }
 .vertical #vs-panel{ left: 0; right: 0; top: 0; bottom: auto; width: 100%; height: 50%; }
 .vertical #fs-panel{ left: 0; right: 0; bottom: 0; height: 50%; top: auto; width: 100%; }
-
+#textures{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 100; background-color: #eee; overflow: auto;}
+#textures .textureElement{ width: 128px; height: 128px; margin: 10px 0 0 10px; float: left; position: relative; border: 1px solid black;}
+#textures img{ width: 128px; height: 128px; position: absolute; left: 0; top: 0 ;}
+#textures .dropzone{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
 </style>
 </head>
 <body>
@@ -88,6 +91,8 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 		<div id="fs-panel">
 			<div id="fs-footer" class="footer" ><p>Fragment Shader | <span id="fs-count" ></span></p> <a id="fs-format" title="Pretty print" class="go-format" ></a> <a id="fs-optimise" title="Optimise" class="go-optimise" ></a> <a id="fs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
 		</div>
+	</div>
+	<div id="textures" >
 	</div>
 </div>
 <div id="settingsPanel" >

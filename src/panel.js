@@ -32,13 +32,15 @@ function f() {
 
 	programs = {};
 	shaders = {};
+	textures = {}
 
 	var methods = [
 		'createProgram', 'linkProgram', 'useProgram',
 		'createShader', 'shaderSource', 'compileShader', 'attachShader', 'detachShader',
 		'getUniformLocation',
 		'getAttribLocation', 'vertexAttribPointer', 'enableVertexAttribArray', 'bindAttribLocation',
-		'bindBuffer'
+		'bindBuffer',
+		'createTexture', 'texImage2D', 'texSubImage2D', 'bindTexture', 'texParameteri', 'texParameterf'
 	];
 
 	this.references = {};
@@ -86,7 +88,7 @@ function f() {
 
 		programs[ p.__uuid ] = el;
 
-		logMsg( 'addProgram', p.__uuid );
+		//logMsg( 'addProgram', p.__uuid );
 		window.postMessage( { source: 'WebGLShaderEditor', method: 'addProgram', uid: p.__uuid }, '*');
 
 	}
@@ -101,7 +103,7 @@ function f() {
 
 		shaders[ shader.__uuid ] = { shader: shader, type: type };
 
-		logMsg( 'addShader', shader.__uuid, type );
+		//logMsg( 'addShader', shader.__uuid, type );
 
 	}
 
@@ -244,7 +246,7 @@ function f() {
 				gl: this
 			} );
 
-			logMsg( 'Added uniform location ' + name + ' ' + res.__uuid );
+			//logMsg( 'Added uniform location ' + name + ' ' + res.__uuid );
 		}
 		return res;
 
@@ -280,7 +282,7 @@ function f() {
 
 			p.attributes.push( el );
 
-			logMsg( 'Added attribute location ' + name + ': ' + index + ' to ' + program.__uuid );
+			//logMsg( 'Added attribute location ' + name + ': ' + index + ' to ' + program.__uuid );
 		}
 		return index;
 
@@ -372,6 +374,172 @@ function f() {
 
 		var res = references.vertexAttribPointer.apply( this, [ index, size, type, normalized, stride, offset ] );
 		return res;
+
+	};
+
+	WebGLRenderingContext.prototype.createTexture = function() {
+
+		var res = references.createTexture.apply( this, [] );
+		res.__uuid = createUUID();
+		res.version = 1;
+		//addProgram( this, res );
+		logMsg( 'TEXTURE CREATED: ' + res );
+		
+		var settings =  {
+			texture: res,
+			gl: this,
+			targets: {}
+		};
+
+		settings.targets[ this.TEXTURE_2D ] = { parametersi: {}, parametersf: {} };
+		settings.targets[ this.TEXTURE_CUBE_MAP ] = { parametersi: {}, parametersf: {} };
+
+		textures[ res.__uuid ] = settings;
+
+		window.postMessage( { source: 'WebGLShaderEditor', method: 'createTexture', uid: res.__uuid }, '*' );	
+
+		return res;
+
+	};
+
+	var currentBoundTexture = null;
+
+	WebGLRenderingContext.prototype.bindTexture = function() {
+
+		//logMsg( 'TEXTURE bindTexture ' + arguments[ 1 ] );
+		var res = references.bindTexture.apply( this, arguments );
+		
+		if( arguments[ 1 ] !== undefined && arguments[ 1 ] !== null ) {
+//			logMsg( 'TEXTURE bindTexture: ' + arguments[ 1 ].__uuid );
+			currentBoundTexture = arguments[ 1 ];
+		} else {
+			//logMsg( 'TEXTURE bindTexture: null' );
+			currentBoundTexture = null;	
+		}
+	//	window.postMessage( { source: 'WebGLShaderEditor', method: 'bindTexture', uid: res.__uuid }, '*' );	
+
+		return res;
+
+	};
+
+	function memcpy (src, srcOffset, dst, dstOffset, length) {
+		var i
+	 
+		src = src.subarray || src.slice ? src : src.buffer
+		dst = dst.subarray || dst.slice ? dst : dst.buffer
+	 
+		src = srcOffset ? src.subarray ?
+			src.subarray(srcOffset, length && srcOffset + length) :
+			src.slice(srcOffset, length && srcOffset + length) : src
+	 
+		if (dst.set) {
+			dst.set(src, dstOffset)
+		} else {
+			for (i=0; i<src.length; i++) {
+				dst[i + dstOffset] = src[i]
+			}
+		}
+	 
+		return dst
+	}
+	
+/*
+	** SIGH **
+
+	void texImage2D(GLenum target, GLint level, GLenum internalformat, 
+                    GLsizei width, GLsizei height, GLint border, GLenum format, 
+                    GLenum type, ArrayBufferView? pixels);
+    void texImage2D(GLenum target, GLint level, GLenum internalformat,
+                    GLenum format, GLenum type, TexImageSource? source); // May throw DOMException
+
+*/
+
+	// https://gist.github.com/jussi-kalliokoski/3138956
+
+	WebGLRenderingContext.prototype.texImage2D = function() {
+
+		// ImageData array, ArrayBufferView, HTMLCanvasElement, HTMLImageElement 
+		logMsg( 'TEXTURE texImage2D level' + arguments[ 1 ] );
+
+		var image = arguments[ 8 ];
+		if( image !== null ) {
+			if( !image ) image = arguments[ 5 ];
+			if( currentBoundTexture ) {
+				logMsg( 'Current bound texture: ' + currentBoundTexture.__uuid )
+				if( image instanceof Image || image instanceof HTMLImageElement ) {
+					var c = document.createElement( 'canvas' );
+					var ctx = c.getContext( '2d' );
+					c.width = image.width;
+					c.height = image.height;
+					ctx.drawImage( image, 0, 0 );
+					currentBoundTexture.width = c.width;
+					currentBoundTexture.height = c.height;
+					window.postMessage( { source: 'WebGLShaderEditor', method: 'uploadTexture', uid: currentBoundTexture.__uuid, image: c.toDataURL() }, '*' );	
+					logMsg( 'TEXTURE texImage2D Image/HTMLImageElement' );
+				} else if( image instanceof ImageData ) {
+					debugger;
+					logMsg( 'TEXTURE texImage2D ImageData' );
+				} else if( image instanceof ArrayBuffer ) {
+					debugger;
+					logMsg( 'TEXTURE texImage2D ArrayBuffer' );
+				} else if( image instanceof Uint8Array ) {
+					debugger;
+					var c = document.createElement( 'canvas' );
+					var ctx = c.getContext( '2d' );
+					c.width = arguments[ 3 ];
+					c.height = arguments[ 4 ];
+					var d = ctx.createImageData( c.width, c.height );
+					memcpy( image, 0, d.data, 0, d.data.length );
+					ctx.putImageData( d, 0, 0 );
+					currentBoundTexture.width = c.width;
+					currentBoundTexture.height = c.height;
+					window.postMessage( { source: 'WebGLShaderEditor', method: 'uploadTexture', uid: currentBoundTexture.__uuid, image: c.toDataURL() }, '*' );	
+					logMsg( 'TEXTURE texImage2D Uint8Array' );
+				} else if( image instanceof HTMLCanvasElement ) {
+					currentBoundTexture.width = arguments[ 3 ];
+					currentBoundTexture.height = arguments[ 4 ];
+					window.postMessage( { source: 'WebGLShaderEditor', method: 'uploadTexture', uid: currentBoundTexture.__uuid, image: image.toDataURL() }, '*' );	
+					logMsg( 'TEXTURE texImage2D HTMLCanvasElement' );
+				} else if( image instanceof Float32Array ) {
+					logMsg( 'TEXTURE textImage2D Float32Array' );
+				} else if( image instanceof HTMLVideoElement ) {
+					logMsg( 'TEXTURE textImage2D HTMLVideoElement' );
+				} else {
+					debugger;
+					logMsg( 'TEXTURE texImage2D Unknown format' );
+				}
+			} else {
+				logMsg( 'TEXTURE texImage2D NO BOUND TEXTURE' );
+			}
+		} else {
+			logMsg( 'TEXTURE set to null' );
+		}
+
+		return references.texImage2D.apply( this, arguments );
+
+	};
+
+	WebGLRenderingContext.prototype.texParameteri = function() {
+
+		var t = textures[ currentBoundTexture.__uuid ];
+		t.targets[ arguments[ 0 ] ].parametersi[ arguments[ 1 ] ] = arguments[ 2 ];
+		references.texParameteri.apply( this, arguments );
+
+	};
+
+	WebGLRenderingContext.prototype.texParameterf = function() {
+
+		var t = textures[ currentBoundTexture.__uuid ];
+		t.targets[ arguments[ 0 ] ].parametersf[ arguments[ 1 ] ] = arguments[ 2 ];
+		references.texParameterf.apply( this, arguments );
+
+	};
+
+	WebGLRenderingContext.prototype.texSubImage2D = function() {
+		
+		logMsg( 'TEXTURE texSubImage2D' );
+	
+		return references.texSubImage2D.apply( this, arguments );
 
 	};
 
@@ -669,6 +837,25 @@ function f() {
 
 	}
 
+	window.UIUpdateImage = function( id, src ) {
+
+		var t = textures[ id ];
+		if( t ) {
+			var img = new Image();
+			img.src = src;
+			references.bindTexture.apply( t.gl, [ t.gl.TEXTURE_2D, t.texture ] );
+			var res = references.texImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, t.gl.RGBA, t.gl.RGBA, t.gl.UNSIGNED_BYTE, img ] );
+//			var res = references.texSubImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, 0, 0, img.width, img.height, t.gl.RGBA, t.gl.UNSIGNED_BYTE, img ] );
+			var err = t.gl.getError();
+			if( err ) {
+				debugger;
+			}
+			t.gl.generateMipmap(t.gl.TEXTURE_2D);
+			t.gl.references.bindTexture.apply( t.gl, [ t.gl.TEXTURE_2D, null ] );
+		}
+
+	}
+
 	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 	function decodeSource( input ) {
@@ -728,9 +915,10 @@ var button = document.getElementById( 'reload' ),
 	list = document.getElementById( 'list' ),
 	vSFooter = document.getElementById( 'vs-count' ),
 	fSFooter = document.getElementById( 'fs-count' ),
-	log = document.getElementById( 'log' );
+	log = document.getElementById( 'log' ),
+	texturePanel = document.getElementById( 'textures' );
 
-var verbose = false;
+var verbose = true;
 if( verbose ) {
 	log.style.left = '50%';
 	log.style.display = 'block';
@@ -891,10 +1079,11 @@ function selectProgram( li ) {
 
 var selectedProgram = null;
 var programs = {};
+var textures = {};
 
 function updateProgramName( i, type, name ) {
 
-	logMsg( ' >>>>>> ' + i.id + ' ' + type + ' ' + name );
+	//logMsg( ' >>>>>> ' + i.id + ' ' + type + ' ' + name );
 
 	if( type === WebGLRenderingContext.VERTEX_SHADER ) {
 		i.vSName = name;
@@ -920,7 +1109,8 @@ function updateProgramName( i, type, name ) {
 function tearDown() {
 
 	selectedProgram = null;
-	programs = [];
+	programs = {};
+	textures = {};
 	vSEditor.setValue( '' );
 	vsPanel.classList.remove( 'not-compiled' );
 	vsPanel.classList.remove( 'compiled' );
@@ -930,6 +1120,7 @@ function tearDown() {
 	fsPanel.classList.remove( 'compiled' );
 	fSFooter.textContent = '';
 	while( list.firstChild ) list.removeChild( list.firstChild );
+	while( texturePanel.firstChild ) texturePanel.removeChild( texturePanel.firstChild );
 
 }
 
@@ -967,7 +1158,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			gl.getExtension( msg.extension );
 			break;
 		case 'addProgram' :
-			logMsg( 'addProgram' );
+			//logMsg( 'addProgram' );
 			info.style.display = 'none';
 			waiting.style.display = 'none';
 			container.style.display = 'block';
@@ -1017,6 +1208,28 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			};
 			programs[ msg.uid ] = d;
 			updateProgramName( d );
+			break;
+		case 'createTexture':
+			var li = document.createElement( 'div' );
+			li.className = 'textureElement';
+			var img = document.createElement( 'img' );
+			var d = {
+				id: msg.uid,
+				li: li,
+				img: img
+			}
+			textures[ msg.uid ] = d;
+			li.appendChild( img );
+			var dZ = createDropZone( function( i ) {
+				chrome.devtools.inspectedWindow.eval( 'UIUpdateImage( \'' + msg.uid + '\', \'' + i + '\' )' );
+			} );
+			li.appendChild( dZ );
+			texturePanel.appendChild( li );
+			logMsg( '>> Created texture ' + msg.uid );
+			break;
+		case 'uploadTexture':
+			textures[ msg.uid ].img.src = msg.image;
+			logMsg( '>> Updated texture ' + msg.uid );
 			break;
 		case 'setShaderName':
 			//logMsg( msg.uid, msg.type, msg.name );
@@ -1266,4 +1479,60 @@ function onWindowResize() {
 
 	editorContainer.classList.toggle( 'vertical', editorContainer.clientWidth < editorContainer.clientHeight );
 	
+}
+
+function createDropZone( imgCallback ) {
+
+	var dropzone = document.createElement( 'div' );
+	dropzone.className = 'dropzone';
+	dropzone.textContent = 'Drop';
+				
+	dropzone.addEventListener('dragenter', function(event){
+		this.style.backgroundColor = 'rgba( 255,255,255,.2 )';
+	}, true );
+
+	dropzone.addEventListener('dragleave', function(event){
+		this.style.backgroundColor = 'transparent';
+	}, true );
+
+	dropzone.addEventListener('dragover', function(event) {
+		this.style.backgroundColor = 'rgba( 255,255,255,.2 )';
+		event.preventDefault();
+	}, true);
+
+	dropzone.addEventListener('drop', function(event) {
+		
+		//showLoader( true );
+
+		this.style.backgroundColor = 'transparent';
+		event.preventDefault();
+		var allTheFiles = event.dataTransfer.files;
+		var reader = new FileReader();
+		reader.onload = function(e) {
+			try {
+				
+				var img = new Image();
+		        img.onload = function() {
+
+		        	var c = document.createElement( 'canvas' );
+		        	var ctx = c.getContext( '2d' );
+		        	c.width = img.width;
+		        	c.height = img.height;
+		        	ctx.drawImage( img, 0, 0 );
+
+		        	imgCallback( c.toDataURL() );
+
+		        }
+		        img.src = e.currentTarget.result;
+
+				//showLoader( false );
+			} catch( e ) {
+				alert( 'Couldn\'t read that file. Make sure it\'s an mp3 or ogg file (Chrome) or ogg file (Firefox).' );
+			}
+		};
+		reader.readAsDataURL( allTheFiles[ 0 ] );
+	}, true);
+
+	return dropzone;
+
 }
