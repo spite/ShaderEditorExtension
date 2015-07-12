@@ -844,7 +844,12 @@ function f() {
 			var img = new Image();
 			img.src = src;
 			references.bindTexture.apply( t.gl, [ t.gl.TEXTURE_2D, t.texture ] );
-			var res = references.texImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, t.gl.RGBA, t.gl.RGBA, t.gl.UNSIGNED_BYTE, img ] );
+			var canvas = document.createElement( 'canvas' );
+			var ctx = canvas.getContext( '2d' );
+			canvas.width = t.texture.width;
+			canvas.height = t.texture.height;
+			ctx.drawImage( img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height );
+			var res = references.texImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, t.gl.RGBA, t.gl.RGBA, t.gl.UNSIGNED_BYTE, canvas ] );
 //			var res = references.texSubImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, 0, 0, img.width, img.height, t.gl.RGBA, t.gl.UNSIGNED_BYTE, img ] );
 			var err = t.gl.getError();
 			if( err ) {
