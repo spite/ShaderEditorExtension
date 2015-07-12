@@ -1,6 +1,6 @@
 {
 	"name": "Shader Editor",
-	"version": "1.0.14",
+	"version": "1.0.15",
 	"minimum_chrome_version": "10.0",
 	"devtools_page": "devtools.html",
 	"icons": {
@@ -23,7 +23,8 @@
 	"permissions": [
 		"http://*/*",
 		"https://*/*",
-		"webNavigation"
+		"webNavigation",
+		"storage"
 	],
 	"manifest_version": 2,
 	"content_security_policy": "default-src 'self' chrome-extension-resource: ; img-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; connect-src *; frame-src *;",

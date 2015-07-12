@@ -1,6 +1,14 @@
-function f() {
+function f( s ) {
 
 //			window.postMessage( { method: 'open', arguments: arguments }, '*');
+
+	var settings = {
+		monitorTextures: false
+	};
+	if( s.monitorTextures ) {
+		logMsg( '>>>' + s.monitorTextures );
+		settings.monitorTextures = s.monitorTextures;
+	}
 
 	function b64EncodeUnicode(str) {
 		return btoa( unescape( encodeURIComponent( str ) ) );
@@ -380,21 +388,26 @@ function f() {
 	WebGLRenderingContext.prototype.createTexture = function() {
 
 		var res = references.createTexture.apply( this, [] );
+
+		if( !settings.monitorTextures ) {
+			return res;
+		}
+
 		res.__uuid = createUUID();
 		res.version = 1;
 		//addProgram( this, res );
 		logMsg( 'TEXTURE CREATED: ' + res );
 		
-		var settings =  {
+		var textSettings =  {
 			texture: res,
 			gl: this,
 			targets: {}
 		};
 
-		settings.targets[ this.TEXTURE_2D ] = { parametersi: {}, parametersf: {} };
-		settings.targets[ this.TEXTURE_CUBE_MAP ] = { parametersi: {}, parametersf: {} };
+		textSettings.targets[ this.TEXTURE_2D ] = { parametersi: {}, parametersf: {} };
+		textSettings.targets[ this.TEXTURE_CUBE_MAP ] = { parametersi: {}, parametersf: {} };
 
-		textures[ res.__uuid ] = settings;
+		textures[ res.__uuid ] = textSettings;
 
 		window.postMessage( { source: 'WebGLShaderEditor', method: 'createTexture', uid: res.__uuid }, '*' );	
 
@@ -406,8 +419,13 @@ function f() {
 
 	WebGLRenderingContext.prototype.bindTexture = function() {
 
-		//logMsg( 'TEXTURE bindTexture ' + arguments[ 1 ] );
 		var res = references.bindTexture.apply( this, arguments );
+
+		if( !settings.monitorTextures ) {
+			return res;
+		}
+
+		//logMsg( 'TEXTURE bindTexture ' + arguments[ 1 ] );
 		
 		if( arguments[ 1 ] !== undefined && arguments[ 1 ] !== null ) {
 //			logMsg( 'TEXTURE bindTexture: ' + arguments[ 1 ].__uuid );
@@ -457,6 +475,12 @@ function f() {
 	// https://gist.github.com/jussi-kalliokoski/3138956
 
 	WebGLRenderingContext.prototype.texImage2D = function() {
+
+		var res = references.texImage2D.apply( this, arguments );
+
+		if( !settings.monitorTextures ) {
+			return res;
+		}
 
 		// ImageData array, ArrayBufferView, HTMLCanvasElement, HTMLImageElement 
 		logMsg( 'TEXTURE texImage2D level' + arguments[ 1 ] );
@@ -515,22 +539,28 @@ function f() {
 			logMsg( 'TEXTURE set to null' );
 		}
 
-		return references.texImage2D.apply( this, arguments );
+		return res;
 
 	};
 
 	WebGLRenderingContext.prototype.texParameteri = function() {
 
-		var t = textures[ currentBoundTexture.__uuid ];
-		t.targets[ arguments[ 0 ] ].parametersi[ arguments[ 1 ] ] = arguments[ 2 ];
-		references.texParameteri.apply( this, arguments );
+		if( settings.monitorTextures ) {
+			var t = textures[ currentBoundTexture.__uuid ];
+			t.targets[ arguments[ 0 ] ].parametersi[ arguments[ 1 ] ] = arguments[ 2 ];
+		}
+
+		return references.texParameteri.apply( this, arguments );
 
 	};
 
 	WebGLRenderingContext.prototype.texParameterf = function() {
 
-		var t = textures[ currentBoundTexture.__uuid ];
-		t.targets[ arguments[ 0 ] ].parametersf[ arguments[ 1 ] ] = arguments[ 2 ];
+		if( settings.monitorTextures ) {
+			var t = textures[ currentBoundTexture.__uuid ];
+			t.targets[ arguments[ 0 ] ].parametersf[ arguments[ 1 ] ] = arguments[ 2 ];
+		}
+
 		references.texParameterf.apply( this, arguments );
 
 	};
@@ -861,6 +891,12 @@ function f() {
 
 	}
 
+	/*window.UISettingsChanged = function( setting, value ) {
+
+		window.postMessage( { source: 'WebGLShaderEditor', method: 'saveSetting', setting: setting, value: value }, '*');
+
+	}*/
+
 	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
 	function decodeSource( input ) {
@@ -876,10 +912,10 @@ function f() {
 				bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
 			) {
 			buffer = chars.indexOf(buffer);
-	}
-	return output;
+		}
+		return output;
 
-}
+	}
 
 	window.UIVSUpdate = function( id, src ) {
 
@@ -923,7 +959,7 @@ var button = document.getElementById( 'reload' ),
 	log = document.getElementById( 'log' ),
 	texturePanel = document.getElementById( 'textures' );
 
-var verbose = true;
+var verbose = false;
 if( verbose ) {
 	log.style.left = '50%';
 	log.style.display = 'block';
@@ -988,16 +1024,26 @@ var options = {
 };
 
 var settings = {
-	highlight: true
+	highlight: true,
+	tmpDisableHighlight: false,
+	textures: false
 }
-/*var stored = chrome.storage.sync.get( 'highlight', function( i ) {
 
-	logMsg( 'retrieved' );
-	logMsg( i );
-	settings.highlight = i;
-	document.getElementById( 'highlightButton' ).style.opacity = settings.highlight ? 1 : .5;
+if( localStorage[ 'highlightShaders' ] ) {
+	settings.highlight = ( localStorage[ 'highlightShaders' ] === 'true' );
+}
 
-} );*/
+if( localStorage[ 'monitorTextures' ] ) {
+	settings.textures = ( localStorage[ 'monitorTextures' ] === 'true' );
+}
+
+if( localStorage[ 'tmpDisableHighlight' ] ) {
+	settings.tmpDisableHighlight = ( localStorage[ 'tmpDisableHighlight' ] === 'true' );
+}
+
+logMsg( 'settings highlight', localStorage[ 'highlightShaders' ] );
+logMsg( 'settings temporal disable highlight', localStorage[ 'tmpDisableHighlight' ] );
+logMsg( 'settings textures', localStorage[ 'monitorTextures' ] );
 
 var editorContainer = document.getElementById( 'editorContainer' );
 var vsPanel = document.getElementById( 'vs-panel' );
@@ -1127,6 +1173,12 @@ function tearDown() {
 	while( list.firstChild ) list.removeChild( list.firstChild );
 	while( texturePanel.firstChild ) texturePanel.removeChild( texturePanel.firstChild );
 
+	document.getElementById( 'highlightButton' ).style.opacity = settings.tmpDisableHighlight ? .5 : 1;
+	document.getElementById( 'textures-disabled' ).style.display = settings.textures?'none':'block';
+	document.getElementById( 'textures' ).style.display = settings.textures?'block':'none';	
+	document.getElementById( 'monitorTextures' ).checked = settings.textures;
+	document.getElementById( 'highlightShaders' ).checked = settings.highlight;
+
 }
 
 backgroundPageConnection.onMessage.addListener( function( msg ) {
@@ -1135,7 +1187,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 		case 'inject':
 			logMsg( 'inject' );
 			tearDown();
-			logMsg( chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ) ); 
+			logMsg( chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')({monitorTextures:' + settings.textures + '})' ) ); 
 			break;
 		case 'onCommitted':
 			//chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ); // this gets appended AFTER the page
@@ -1192,12 +1244,12 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 				chrome.devtools.inspectedWindow.eval( 'UIProgramSelected( \'' + msg.uid + '\' )' );
 			} );
 			li.addEventListener( 'mouseover', function() {
-				if( settings.highlight && !this.classList.contains( 'hidden' ) ) {
+				if( settings.highlight && !settings.tmpDisableHighlight && !this.classList.contains( 'hidden' ) ) {
 					chrome.devtools.inspectedWindow.eval( 'UIProgramHovered( \'' + msg.uid + '\' )' );
 				}
 			} );
 			li.addEventListener( 'mouseout', function() {
-				if( settings.highlight && !this.classList.contains( 'hidden' ) ) {
+				if( settings.highlight && !settings.tmpDisableHighlight && !this.classList.contains( 'hidden' ) ) {
 					chrome.devtools.inspectedWindow.eval( 'UIProgramOut( \'' + msg.uid + '\' )' );
 				}
 			} );
@@ -1215,6 +1267,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			updateProgramName( d );
 			break;
 		case 'createTexture':
+			if( !settings.textures ) return;
 			var li = document.createElement( 'div' );
 			li.className = 'textureElement';
 			var img = document.createElement( 'img' );
@@ -1467,13 +1520,35 @@ document.getElementById( 'fs-optimise' ).addEventListener( 'click', function( e 
 
 document.getElementById( 'highlightButton' ).addEventListener( 'click', function( e ) {
 
-	settings.highlight = !settings.highlight;
-	/*chrome.storage.sync.set( { 'highlight': settings.highlight }, function() {
-		logMsg( 'Saved' )
-	} );*/
-
-	this.style.opacity = settings.highlight ? 1 : .5;
+	settings.tmpDisableHighlight = !settings.tmpDisableHighlight;
 	
+	this.style.opacity = settings.tmpDisableHighlight ? .5 : 1;
+	
+	e.preventDefault();
+
+} );
+
+document.getElementById( 'highlightShaders' ).addEventListener( 'change', function( e ) {
+
+	settings.highlight = this.checked;
+	logMsg( this.checked );
+
+	var v = settings.highlight?'true':'false';
+	localStorage[ 'highlightShaders' ] = v;
+
+	document.getElementById( 'highlightButton' ).style.opacity = settings.highlight ? 1 : .5;
+	
+	e.preventDefault();
+
+} );
+
+document.getElementById( 'monitorTextures' ).addEventListener( 'change', function( e ) {
+
+	settings.textures = this.checked;
+
+	var v = settings.textures?'true':'false';
+	localStorage[ 'monitorTextures' ] = v;
+
 	e.preventDefault();
 
 } );
