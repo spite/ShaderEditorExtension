@@ -1541,3 +1541,26 @@ function createDropZone( imgCallback ) {
 	return dropzone;
 
 }
+
+var tabButtons = document.querySelectorAll( '#tabs li' );
+var tabs = document.querySelectorAll( '.tab' );
+[].forEach.call( tabButtons, function( button ) {
+
+	var id = button.getAttribute( 'data-tab' );
+	button.addEventListener( 'click', function() {
+
+		[].forEach.call( tabs, function( tab ) {
+
+			tab.classList.toggle( 'active', tab.id === ( id + '-tab' ) );
+
+		} );
+
+		[].forEach.call( tabButtons, function( b ) {
+
+			b.classList.toggle( 'active', button === b );
+
+		} );
+
+	} );
+
+} );

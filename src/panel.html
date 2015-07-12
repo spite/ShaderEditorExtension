@@ -49,7 +49,7 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #log{ position: absolute;left: 50%; top:0;right: 0; bottom: 0; overflow: auto; display: none;}
 .compiled{ background-color: #2fb600; color: white;}
 .not-compiled{ background-color: #b60000; color: white;}
-#settingsPanel{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: white; padding: 40px; display: none;}
+#settingsPanel{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: white; padding: 30px; display: none;}
 #settingsPanel h1{ margin-bottom: 10px;}
 #settingsPanel input[type="checkbox"]{ margin-right: 5px;}
 #toolbarContainer{ position: absolute; left: 0; bottom: 0; height: 25px; width: 200px; background-color: #eee; }
@@ -63,6 +63,12 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 #textures .textureElement{ width: 128px; height: 128px; margin: 10px 0 0 10px; float: left; position: relative; border: 1px solid black;}
 #textures img{ width: 128px; height: 128px; position: absolute; left: 0; top: 0 ;}
 #textures .dropzone{ position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+#tabs{ position: absolute; left: 0; top: 0; right: 0; height: 30px; background-color: #eee; border-bottom: 1px solid #a6a6a6;}
+#tab-container{ position: absolute; left: 0; top: 30px; right: 0; bottom: 0;}
+#tabs li{ float: left; height: 30px; padding: 0 20px; line-height: 30px; cursor: pointer; border: none; border-bottom: 1px solid #a6a6a6; border-top-right-radius: 5px; border-top-left-radius: 5px }
+#tabs li.active{ font-weight: bold; border: 1px solid #a6a6a6; border-bottom: 1px solid #eee; }
+.tab{ display: none;}
+.tab.active{ display: block; }
 </style>
 </head>
 <body>
@@ -78,21 +84,31 @@ body{ background-color: #eee; -webkit-user-select: none; cursor: default; }
 </div>
 <div id="log" ></div>
 <div id="container" >
-	<ul id="list">
+	<ul id="tabs">
+		<li data-tab="shaders" class="active">Shaders</li>
+		<li data-tab="textures">Textures</li>
 	</ul>
-	<ul id="toolbarContainer" >
-		<!--<li><a href="#" id="settingsButton"></a></li>-->
-		<li><a href="#" id="highlightButton"></a></li>
-	</ul>
-	<div id="editorContainer">
-		<div id="vs-panel">
-			<div id="vs-footer" class="footer" ><p>Vertex Shader | <span id="vs-count" ></span></p> <a id="vs-format" title="Pretty print" class="go-format" ></a> <a id="vs-optimise" title="Optimise" class="go-optimise" ></a> <a id="vs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
+	<div id="tab-container">
+		<div class="active tab" id="shaders-tab">>
+			<ul id="list">
+			</ul>
+			<ul id="toolbarContainer" >
+				<!--<li><a href="#" id="settingsButton"></a></li>-->
+				<li><a href="#" id="highlightButton"></a></li>
+			</ul>
+			<div id="editorContainer">
+				<div id="vs-panel">
+					<div id="vs-footer" class="footer" ><p>Vertex Shader | <span id="vs-count" ></span></p> <a id="vs-format" title="Pretty print" class="go-format" ></a> <a id="vs-optimise" title="Optimise" class="go-optimise" ></a> <a id="vs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
+				</div>
+				<div id="fs-panel">
+					<div id="fs-footer" class="footer" ><p>Fragment Shader | <span id="fs-count" ></span></p> <a id="fs-format" title="Pretty print" class="go-format" ></a> <a id="fs-optimise" title="Optimise" class="go-optimise" ></a> <a id="fs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
+				</div>
+			</div>
 		</div>
-		<div id="fs-panel">
-			<div id="fs-footer" class="footer" ><p>Fragment Shader | <span id="fs-count" ></span></p> <a id="fs-format" title="Pretty print" class="go-format" ></a> <a id="fs-optimise" title="Optimise" class="go-optimise" ></a> <a id="fs-fullscreen" title="Go fullscreen" class="go-fullscreen" ></a></div>
+		<div class="tab" id="textures-tab" >
+			<div id="textures" >
+			</div>
 		</div>
-	</div>
-	<div id="textures" >
 	</div>
 </div>
 <div id="settingsPanel" >
