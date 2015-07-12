@@ -1185,6 +1185,8 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 
 	switch( msg.method ) {
 		case 'inject':
+			info.style.display = 'none';
+			waiting.style.display = 'flex';
 			logMsg( 'inject' );
 			tearDown();
 			logMsg( chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')({monitorTextures:' + settings.textures + '})' ) ); 
@@ -1200,15 +1202,13 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 		case 'onUpdated':
 			//chrome.devtools.inspectedWindow.eval( '(' + f.toString() + ')()' ); // this gets appended AFTER the page
 			/*chrome.devtools.inspectedWindow.reload( {
-				ignoreCache: true, 
+				ignoreCache: true, ''
 		    	injectedScript: '(' + f.toString() + ')()'
 			} );*/
 			//console.log( 'onCommitted', Date.now() );
 			break;
 		case 'init':
 			logMsg( 'init' );
-			info.style.display = 'none';
-			waiting.style.display = 'flex';
 			break;
 		case 'getExtension':
 			logMsg( 'addExtension', msg.extension );
@@ -1565,7 +1565,6 @@ function createDropZone( imgCallback ) {
 
 	var dropzone = document.createElement( 'div' );
 	dropzone.className = 'dropzone';
-	dropzone.textContent = 'Drop';
 				
 	dropzone.addEventListener('dragenter', function(event){
 		this.style.backgroundColor = 'rgba( 255,255,255,.2 )';
@@ -1580,13 +1579,23 @@ function createDropZone( imgCallback ) {
 		event.preventDefault();
 	}, true);
 
-	dropzone.addEventListener('drop', function(event) {
-		
-		//showLoader( true );
+	var input = document.createElement( 'input' );
+	input.setAttribute( 'type', 'file' );
+	input.style.opacity = 0;
 
-		this.style.backgroundColor = 'transparent';
-		event.preventDefault();
-		var allTheFiles = event.dataTransfer.files;
+	dropzone.appendChild( input );
+
+	function handleFileSelect( e ) {
+
+		var files = e.target.files; // FileList object
+		loadFiles( files );
+
+	}
+
+	input.addEventListener( 'change', handleFileSelect, false);
+
+	function loadFiles( files ) {
+
 		var reader = new FileReader();
 		reader.onload = function(e) {
 			try {
@@ -1610,7 +1619,18 @@ function createDropZone( imgCallback ) {
 				alert( 'Couldn\'t read that file. Make sure it\'s an mp3 or ogg file (Chrome) or ogg file (Firefox).' );
 			}
 		};
-		reader.readAsDataURL( allTheFiles[ 0 ] );
+		reader.readAsDataURL( files[ 0 ] );
+
+	}
+
+	dropzone.addEventListener('drop', function(event) {
+		
+		//showLoader( true );
+
+		this.style.backgroundColor = 'transparent';
+		event.preventDefault();
+		loadFiles( event.dataTransfer.files );
+
 	}, true);
 
 	return dropzone;
