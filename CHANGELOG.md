@@ -2,8 +2,9 @@
 
 Features:
 
- - Added texture monitor/editor
- - Added settings panel
+ - Added toggling of shaders
+ - Added texture monitor/editor: shows textures created and can be replaced by new images (no support for cubemaps yet)
+ - Added settings panel: toggle shader highlighting and texture monitoring
  - Created CHANGELOG.md
 
 ## v1.0.14 
