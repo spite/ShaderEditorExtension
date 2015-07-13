@@ -7,6 +7,7 @@ Twin project of [Web Audio API Editor Extension for Google Chrome](https://githu
 ![Shader Editor](/about/snapshot.jpg)
 
 [Install the extension from the Chrome Store](https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob)
+[![npm](/about/ChromeWebStore_Badge_v2_496x150.png)](https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob)
 
 Some more info about this project: [Creating a Plug'n Play Live WebGL Shader Editor](http://www.clicktorelease.com/blog/live-webgl-shader-editor)
 
