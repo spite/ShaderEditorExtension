@@ -59,7 +59,7 @@ Nice to have:
 
 - Save to disk (?) - Not possible for now with the DevTools API
 - Add uniform tracking to display values fed to the shader
-- ~~Integrating @aras-p + @zz85 [GLSL Optimizer](https://github.com/zz85/glsl-optimizer)~~ https://github.com/spite/ShaderEditorExtension/commit/cd6c59aef586b1a7d8dfbdbb01e9538fb374a270
+- ~~Integrating @aras-p + @zz85 [GLSL Optimizer](https://github.com/zz85/glsl-optimizer)~~ [Added](https://github.com/spite/ShaderEditorExtension/commit/cd6c59aef586b1a7d8dfbdbb01e9538fb374a270)
  
 #### Changelog ####
 
