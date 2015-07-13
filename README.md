@@ -33,7 +33,7 @@ Alternatively, you can pack the extension yourself and load by dropping the .crx
 - The extension needs to instrument ``WebGLRenderingContext``: if you open DevTools after the page has loaded, hit the ``Reload`` button. If the extension was already running, it automatically instruments the page.
 - If there are calls to ``.createProgram``, the UI will show a list
 - Select a program to see its vertex shader and fragment shader
-- Use the Pretty Print icon (![Pretty print](/src/assets/format.svg)) to make the code more readable
+- Use the Pretty Print icon (![Pretty print](https://cdn.rawgit.com/spite/ShaderEditorExtension/master/src/assets/format.svg)) to make the code more readable
 - Use the fullscreen button to make the code editor bigger
 - Use the Star icon to apply the GLSL Optimiser
 - Use the check mark icon next to each shader's name to toggle its visiblity
