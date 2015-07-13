@@ -59,8 +59,8 @@ Nice to have:
 
 - Save to disk (?) - Not possible for now with the DevTools API
 - Add uniform tracking to display values fed to the shader
-- Integrating @zz85's GLSL Optimizer? (https://github.com/zz85/glsl-optimizer)
-
+- ~~Integrating @aras-p + @zz85 [GLSL Optimizer](https://github.com/zz85/glsl-optimizer)~~ https://github.com/spite/ShaderEditorExtension/commit/cd6c59aef586b1a7d8dfbdbb01e9538fb374a270
+ 
 #### Changelog ####
 
 - v1.0.0 initial release
@@ -78,6 +78,7 @@ Nice to have:
 - v1.0.12 fix for three.js
 - v1.0.13 support for live reload across browsing session (https://github.com/spite/ShaderEditorExtension/issues/1)
 - v1.0.14 support for shader/program names [Issue #10](https://github.com/spite/ShaderEditorExtension/issues/10)
+- v1.0.15 added texture monitor/editor and settings
 
 #### License ####
 
