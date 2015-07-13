@@ -13,7 +13,10 @@ Some more info about this project: [Creating a Plug'n Play Live WebGL Shader Edi
 
 ### How to install ###
 
-While in beta, you can load the extension from disk directly:
+From the chrome store:
+ - [Follow this link and install the extension from the Chrome Store](https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob)
+
+Load the extension from disk directly:
 - Checkout the repo
 - Open Chrome's Extensions page (``Settings / More tools / Extensions``)
 - Enable ``Developer Mode``
@@ -30,21 +33,13 @@ Alternatively, you can pack the extension yourself and load by dropping the .crx
 - The extension needs to instrument ``WebGLRenderingContext``: if you open DevTools after the page has loaded, hit the ``Reload`` button. If the extension was already running, it automatically instruments the page.
 - If there are calls to ``.createProgram``, the UI will show a list
 - Select a program to see its vertex shader and fragment shader
-- Use the Pretty Print icon to make the code more readable; Use the fullscreen button to make the code editor bigger; Use the Eye icon to disable shader highlighting.
-
-### Stuff that works ###
-
-You can expand the editor area by clicking the Fullscreen button on the bottom right corner.
-
-If the shader code is obfuscated, you can click on the Autoformat button.
-
-Enabling extensions is mirrored in the environment to test shaders.
-
-### Stuff that doesn't work ####
-
-Changing stuff in several places probably isn't tracked correctly, so if you edit a shader and the JavaScript in the page also edits it, there'll be weird side-effects.
-
-~~**More importantly: the shader compiling and testing is done with a separate ``WebGLRenderingContext``, so is the page is using extensions, the shader won't compile.** The solution is either track the ``.getExtension`` method and reproduce it in the extension GL context, or pass the testing to the injected library.~~
+- Use the Pretty Print icon to make the code more readable
+- Use the fullscreen button to make the code editor bigger
+- Use the Star icon to apply the GLSL Optimiser
+- Use the check mark icon next to each shader's name to toggle its visiblity
+- Use the Eye icon to disable shader highlighting
+- On the Textures tab, click on a texture to open a File Dialog to use another texture, or drag and drop a file into the texture.
+- On the Setting tab, enable or disable texture monitoring and shader highlighting (for performance reasons)
 
 ### TO-DO ###
 
