@@ -10,6 +10,8 @@ function f( s ) {
 		settings.monitorTextures = s.monitorTextures;
 	}
 
+	function debug() { }
+
 	function b64EncodeUnicode(str) {
 		return btoa( unescape( encodeURIComponent( str ) ) );
 	}
@@ -501,13 +503,13 @@ function f( s ) {
 					window.postMessage( { source: 'WebGLShaderEditor', method: 'uploadTexture', uid: currentBoundTexture.__uuid, image: c.toDataURL() }, '*' );	
 					logMsg( 'TEXTURE texImage2D Image/HTMLImageElement' );
 				} else if( image instanceof ImageData ) {
-					debugger;
+					debug();
 					logMsg( 'TEXTURE texImage2D ImageData' );
 				} else if( image instanceof ArrayBuffer ) {
-					debugger;
+					debug();
 					logMsg( 'TEXTURE texImage2D ArrayBuffer' );
 				} else if( image instanceof Uint8Array ) {
-					debugger;
+					debug();
 					var c = document.createElement( 'canvas' );
 					var ctx = c.getContext( '2d' );
 					c.width = arguments[ 3 ];
@@ -529,7 +531,7 @@ function f( s ) {
 				} else if( image instanceof HTMLVideoElement ) {
 					logMsg( 'TEXTURE textImage2D HTMLVideoElement' );
 				} else {
-					debugger;
+					debug();
 					logMsg( 'TEXTURE texImage2D Unknown format' );
 				}
 			} else {
@@ -879,12 +881,13 @@ function f( s ) {
 			canvas.width = t.texture.width;
 			canvas.height = t.texture.height;
 			ctx.drawImage( img, 0, 0, img.width, img.height, 0, 0, canvas.width, canvas.height );
+			logMsg( 'UPDATE TEXTURE ', img.width, img.height, canvas.width, canvas.height );
 			var res = references.texImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, t.gl.RGBA, t.gl.RGBA, t.gl.UNSIGNED_BYTE, canvas ] );
 //			var res = references.texSubImage2D.apply( t.gl, [ t.gl.TEXTURE_2D, 0, 0, 0, img.width, img.height, t.gl.RGBA, t.gl.UNSIGNED_BYTE, img ] );
-			var err = t.gl.getError();
+			/*var err = t.gl.getError();
 			if( err ) {
 				debugger;
-			}
+			}*/
 			t.gl.generateMipmap(t.gl.TEXTURE_2D);
 			t.gl.references.bindTexture.apply( t.gl, [ t.gl.TEXTURE_2D, null ] );
 		}
