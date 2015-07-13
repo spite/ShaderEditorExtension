@@ -64,22 +64,7 @@ Nice to have:
  
 #### Changelog ####
 
-- v1.0.0 initial release
-- v1.0.1 fix extensions not being enabled 
-- v1.0.2 added colour highlighting for hover
-- v1.0.3 rolled back, colouring introducing bugs
-- v1.0.4 fixed some shaders not compiling (issue #4)
-- v1.0.5 fixes and compiler status
-- v1.0.6 redone main code, highlight brought back
-- v1.0.7 error checks for attributes (possible bug?)
-- v1.0.8 new icon (thanks @ebraminio & @markusfisch), restored extension support
-- v1.0.9 starting options panel, added setting for highlighting
-- v1.0.10 improved error reporting, several fixes
-- v1.0.11 fixed bug with uniform retrieving: shadertoy and other cool sites supported!
-- v1.0.12 fix for three.js
-- v1.0.13 support for live reload across browsing session (https://github.com/spite/ShaderEditorExtension/issues/1)
-- v1.0.14 support for shader/program names [Issue #10](https://github.com/spite/ShaderEditorExtension/issues/10)
-- v1.0.15 added texture monitor/editor and settings
+[See detailed change log](CHANGELOG.md)
 
 #### License ####
 
