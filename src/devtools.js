@@ -18,7 +18,8 @@ backgroundPageConnection.postMessage({
   name: 'init',
   tabId: chrome.devtools.inspectedWindow.tabId
 });
-
+/*
 backgroundPageConnection.onMessage.addListener(function(msg) {
 	//console.log( 'devtools.js', msg );
 });
+*/
