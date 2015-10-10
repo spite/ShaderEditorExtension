@@ -1,5 +1,10 @@
 ## v1.0.15 (2015-07-13)
 
+Bugfixes:
+ - Codermirror search working ([#14](https://github.com/spite/ShaderEditorExtension/issues/14))
+ 
+## v1.0.15 (2015-07-13)
+
 Features:
 
  - Added toggling of shaders
