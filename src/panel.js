@@ -1010,11 +1010,6 @@ var backgroundPageConnection = chrome.runtime.connect({
 	name: 'panel'
 });
 
-backgroundPageConnection.postMessage({
-	name: 'init',
-	tabId: chrome.devtools.inspectedWindow.tabId
-});
-
 var options = { 
 	lineNumbers: true,
 	matchBrackets: true,
@@ -1032,21 +1027,24 @@ var settings = {
 	textures: false
 }
 
-if( localStorage[ 'highlightShaders' ] ) {
-	settings.highlight = ( localStorage[ 'highlightShaders' ] === 'true' );
+function readSettings() {
+
+	backgroundPageConnection.postMessage( {
+		name: 'readSettings',
+		tabId: chrome.devtools.inspectedWindow.tabId
+	} );
+
 }
 
-if( localStorage[ 'monitorTextures' ] ) {
-	settings.textures = ( localStorage[ 'monitorTextures' ] === 'true' );
-}
+function saveSettings() {
 
-if( localStorage[ 'tmpDisableHighlight' ] ) {
-	settings.tmpDisableHighlight = ( localStorage[ 'tmpDisableHighlight' ] === 'true' );
-}
+	backgroundPageConnection.postMessage( {
+		name: 'saveSettings',
+		settings: settings,
+		tabId: chrome.devtools.inspectedWindow.tabId
+	} );
 
-logMsg( 'settings highlight', localStorage[ 'highlightShaders' ] );
-logMsg( 'settings temporal disable highlight', localStorage[ 'tmpDisableHighlight' ] );
-logMsg( 'settings textures', localStorage[ 'monitorTextures' ] );
+}
 
 var editorContainer = document.getElementById( 'editorContainer' );
 var vsPanel = document.getElementById( 'vs-panel' );
@@ -1210,6 +1208,13 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			} );*/
 			//console.log( 'onCommitted', Date.now() );
 			break;
+		case 'loaded':
+			readSettings();
+			break;
+		case 'settings':
+			settings = msg.settings;
+			logMsg( JSON.stringify( settings ) );
+			break;
 		case 'init':
 			logMsg( 'init' );
 			break;
@@ -1316,6 +1321,11 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 	}
 
 } );
+
+backgroundPageConnection.postMessage({
+	name: 'init',
+	tabId: chrome.devtools.inspectedWindow.tabId
+});
 
 var keyTimeout = 500;
 var vSTimeout;
@@ -1526,6 +1536,7 @@ document.getElementById( 'highlightButton' ).addEventListener( 'click', function
 	settings.tmpDisableHighlight = !settings.tmpDisableHighlight;
 	
 	this.style.opacity = settings.tmpDisableHighlight ? .5 : 1;
+	saveSettings();
 	
 	e.preventDefault();
 
@@ -1536,8 +1547,7 @@ document.getElementById( 'highlightShaders' ).addEventListener( 'change', functi
 	settings.highlight = this.checked;
 	logMsg( this.checked );
 
-	var v = settings.highlight?'true':'false';
-	localStorage[ 'highlightShaders' ] = v;
+	saveSettings();
 
 	document.getElementById( 'highlightButton' ).style.opacity = settings.highlight ? 1 : .5;
 	
@@ -1549,8 +1559,7 @@ document.getElementById( 'monitorTextures' ).addEventListener( 'change', functio
 
 	settings.textures = this.checked;
 
-	var v = settings.textures?'true':'false';
-	localStorage[ 'monitorTextures' ] = v;
+	saveSettings();
 
 	e.preventDefault();
 

@@ -19,23 +19,67 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   return true;
 });
 
-chrome.runtime.onConnect.addListener(function(port) {
+chrome.runtime.onConnect.addListener(function( connection ) {
 
   // Listen to messages sent from the DevTools page
-  port.onMessage.addListener(function(request) {
+  var listener = function(message, sender, sendResponse) {
    // console.log('incoming message from dev tools page');
 
-    // Register initial connection
-    if (request.name == 'init') {
-      connections[request.tabId] = port;
-
-      port.onDisconnect.addListener(function() {
-        delete connections[request.tabId];
-      });
-
-      return;
+    // Register initial connection  
+    if ( message.name === 'init') {
+      console.log( 'init' );
+      connections[ message.tabId ] = connection;
+      connections[ message.tabId ].postMessage( { method: 'loaded' } );
     }
+
+    if( message.name === 'readSettings' ) {
+      console.log( 'read settings' );
+
+      chrome.storage.sync.get( 'settings', function( obj ) {
+        console.log( 'SETTINGS: ', obj );
+
+        var settings = {
+          highlight: true,
+          tmpDisableHighlight: false,
+          textures: false
+        }
+
+        if( obj.settings ) {
+          obj = obj.settings;
+
+          if( obj.highlight !== undefined ) {
+            settings.highlight = obj.highlight;
+          }
+
+          if( obj.textures !== undefined ) {
+            settings.textures = obj.textures;
+          }
+
+          if( obj.tmpDisableHighlight !== undefined ) {
+            settings.tmpDisableHighlight = obj.tmpDisableHighlight;
+          }
+        }
+
+        connections[ message.tabId ].postMessage( { method: 'settings', settings: settings } );
+      } );
+
+    }
+
+    if( message.name === 'saveSettings' ) {
+      console.log( 'save settings' );
+      chrome.storage.sync.set( { 'settings': message.settings },  function() {
+          console.log('Settings saved');
+        });
+    }
+
+  }
+
+  connection.onMessage.addListener( listener );
+
+  connection.onDisconnect.addListener(function() {
+    connection.onMessage.removeListener( listener );
   });
+
 
 });
 /*
@@ -92,8 +136,9 @@ chrome.history.onVisited.addListener(function(historyItem)
 {
         console.log("history.onVisited: " + historyItem.url);
 });*/
-
+/*
 chrome.webNavigation.onCompleted.addListener(function(data) 
         {
               //  console.log("onCompleted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
         });
+*/
