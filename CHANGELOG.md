@@ -1,7 +1,8 @@
-## v1.0.15 (2015-07-13)
+## v1.0.16 (2015-10-10)
 
 Bugfixes:
- - Codermirror search working ([#14](https://github.com/spite/ShaderEditorExtension/issues/14))
+ - Codemirror search working ([#14](https://github.com/spite/ShaderEditorExtension/issues/14))
+ - Moved localStorage from panel to chrome.storage on background page (was broken with blocked third party cookies)
  
 ## v1.0.15 (2015-07-13)
 
