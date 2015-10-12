@@ -1209,7 +1209,7 @@ backgroundPageConnection.onMessage.addListener( function( msg ) {
 			//console.log( 'onCommitted', Date.now() );
 			break;
 		case 'loaded':
-			readSettings();
+			console.log( 'ready' );
 			break;
 		case 'settings':
 			settings = msg.settings;
