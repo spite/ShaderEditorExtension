@@ -1,6 +1,13 @@
+## current
+
+Features:
+
+- Moved settings load to be done first thing when loading the extension: should create less potential problems when loading
+
 ## v1.0.16 (2015-10-10)
 
 Bugfixes:
+
  - Codemirror search working ([#14](https://github.com/spite/ShaderEditorExtension/issues/14))
  - Moved localStorage from panel to chrome.storage on background page (was broken with blocked third party cookies)
  
