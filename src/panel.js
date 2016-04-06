@@ -684,6 +684,7 @@ function f( s ) {
 	function extractShaderName( source ) {
 
 		var name = '';
+		var m;
 
 		var re = /#define[\s]+SHADER_NAME[\s]+([\S]+)(\n|$)/gi;
 		if ((m = re.exec( source)) !== null) {
