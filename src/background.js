@@ -2,98 +2,116 @@
 var connections = {};
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//  console.log('incoming message from injected script');
- // console.log(request);
+    //  console.log('incoming message from injected script');
+    // console.log(request);
 
-  // Messages from content scripts should have sender.tab set
-  if (sender.tab) {
-    var tabId = sender.tab.id;
-    if (tabId in connections) {
-      connections[tabId].postMessage(request);
+    // Messages from content scripts should have sender.tab set
+    if (sender.tab) {
+        var tabId = sender.tab.id;
+        if (tabId in connections) {
+            connections[tabId].postMessage(request);
+        } else {
+            console.log("Tab not found in connection list.");
+        }
     } else {
-      console.log("Tab not found in connection list.");
+        console.log("sender.tab not defined.");
     }
-  } else {
-    console.log("sender.tab not defined.");
-  }
-  return true;
+    return true;
 });
 
-function getSettings( c ) {
+function getSettings(c) {
 
-  chrome.storage.sync.get( 'settings', function( obj ) {
-    console.log( 'SETTINGS: ', obj );
+    chrome.storage.sync.get('settings', function(obj) {
+        console.log('SETTINGS: ', obj);
 
-    var settings = {
-      highlight: true,
-      tmpDisableHighlight: false,
-      textures: false
-    }
+        var settings = {
+            highlight: false,
+            tmpDisableHighlight: false,
+            textures: false,
+            theme: 0,
+            debugShaderEditor: false,
+            logShaderEditor: false
+        }
 
-    if( obj.settings ) {
-      obj = obj.settings;
+        if (obj.settings) {
+            obj = obj.settings;
 
-      if( obj.highlight !== undefined ) {
-        settings.highlight = obj.highlight;
-      }
+            if (obj.highlight !== undefined) {
+                settings.highlight = obj.highlight;
+            }
 
-      if( obj.textures !== undefined ) {
-        settings.textures = obj.textures;
-      }
+            if (obj.textures !== undefined) {
+                settings.textures = obj.textures;
+            }
 
-      if( obj.tmpDisableHighlight !== undefined ) {
-        settings.tmpDisableHighlight = obj.tmpDisableHighlight;
-      }
-    }
+            if (obj.tmpDisableHighlight !== undefined) {
+                settings.tmpDisableHighlight = obj.tmpDisableHighlight;
+            }
 
-    c( settings );
+            if (obj.theme !== undefined) {
+                settings.theme = obj.theme;
+            }
 
-  });
+        }
+
+        c(settings);
+
+    });
 
 }
 
-chrome.runtime.onConnect.addListener(function( connection ) {
+chrome.runtime.onConnect.addListener(function(connection) {
 
-  console.log( 'onConnect', connection );
+    console.log('onConnect', connection);
 
-  // Listen to messages sent from the DevTools page
-  var listener = function(message, sender, sendResponse) {
-   
-    console.log('incoming message from dev tools page', message, sender, sendResponse );
+    // Listen to messages sent from the DevTools page
+    var listener = function(message, sender, sendResponse) {
 
-    // Register initial connection  
-    if ( message.name === 'init') {
-      console.log( 'init' );
-      connections[ message.tabId ] = connection;
-      getSettings( function( settings ) {
-        connections[ message.tabId ].postMessage( { method: 'settings', settings: settings } );
-        connections[ message.tabId ].postMessage( { method: 'loaded' } );
-      } );
+        console.log('incoming message from dev tools page', message, sender, sendResponse);
+
+        // Register initial connection  
+        if (message.name === 'init') {
+            console.log('init');
+            connections[message.tabId] = connection;
+            getSettings(function(settings) {
+                connections[message.tabId].postMessage({
+                    method: 'settings',
+                    settings: settings
+                });
+                connections[message.tabId].postMessage({
+                    method: 'loaded'
+                });
+            });
+        }
+
+        if (message.name === 'readSettings') {
+            console.log('read settings');
+
+            getSettings(function(settings) {
+                connections[message.tabId].postMessage({
+                    method: 'settings',
+                    settings: settings
+                });
+            });
+
+        }
+
+        if (message.name === 'saveSettings') {
+            console.log('save settings');
+            chrome.storage.sync.set({
+                'settings': message.settings
+            }, function() {
+                console.log('Settings saved');
+            });
+        }
+
     }
 
-    if( message.name === 'readSettings' ) {
-      console.log( 'read settings' );
+    connection.onMessage.addListener(listener);
 
-      getSettings( function( settings ) {
-        connections[ message.tabId ].postMessage( { method: 'settings', settings: settings } );
-      } );
-
-    }
-    
-    if( message.name === 'saveSettings' ) {
-      console.log( 'save settings' );
-      chrome.storage.sync.set( { 'settings': message.settings },  function() {
-          console.log('Settings saved');
-        });
-    }
-
-  }
-
-  connection.onMessage.addListener( listener );
-
-  connection.onDisconnect.addListener(function() {
-    connection.onMessage.removeListener( listener );
-  });
+    connection.onDisconnect.addListener(function() {
+        connection.onMessage.removeListener(listener);
+    });
 
 
 });
@@ -110,36 +128,34 @@ chrome.tabs.onUpdated.addListener( function( tabId ) {
 
 } );*/
 
-chrome.webNavigation.onBeforeNavigate.addListener(function(data) 
-{
-        //console.log("onBeforeNavigate: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+chrome.webNavigation.onBeforeNavigate.addListener(function(data) {
+    console.log("onBeforeNavigate: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
 });
 
 chrome.webNavigation.onCommitted.addListener(function(data) {
- 
-  //console.log("onCommitted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
- 
-  if( connections[ data.tabId ] ) {
-    if( data.frameId === 0 ) {
-      connections[ data.tabId ].postMessage( { method: 'inject' } );
+
+    console.log("onCommitted: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+
+    if (connections[data.tabId]) {
+        if (data.frameId === 0) {
+            connections[data.tabId].postMessage({
+                method: 'inject'
+            });
+        }
     }
-  }
 
 });
 
-chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) 
-{
-       // console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) {
+    // console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
 });
 
-chrome.webNavigation.onErrorOccurred.addListener(function(data) 
-{
-      //  console.log("onErrorOccurred: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId + ". Error: " + data.error);
+chrome.webNavigation.onErrorOccurred.addListener(function(data) {
+    //  console.log("onErrorOccurred: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId + ". Error: " + data.error);
 });
 
-chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) 
-{
-      //  console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
+chrome.webNavigation.onReferenceFragmentUpdated.addListener(function(data) {
+    //  console.log("onReferenceFragmentUpdated: " + data.url + ". Frame: " + data.frameId + ". Tab: " + data.tabId);
 });
 
 /*chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) 

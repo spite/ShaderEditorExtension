@@ -1,6 +1,39 @@
 ## current
 
 Features:
+- fold (block, preprocessor)
+- match hilighght
+- debug value using "render value as Color" (click on gutter)
+- edit Shader
+- preprocessor and unused function cleaner
+- add support for themes
+- movie recorder
+- Uniform Hover for Value
+- glsl keyword hover for link to doc.
+
+bugfixes
+- fixed a race condition (udpate a shader while it's being used.)
+- fix unused uniform still binding
+
+Internals:
+- upgrade to latest codemiror
+- upgrade to latest code mirror addons
+- seperate folder upong different submodules (so that we can migrate to
+- submodules for codemirror, shadereditor, glsl-optimzer)
+- make shader editor independant of chrome extensions so that it's
+ reusable otw. (as a vorlonjs plugin for instance, for mobile shader
+ remote debug)
+- added glsl preprocessor to clean uber shader to just what is used
+- enabled new codemirror addons (mathhilight on word select, fold block
+ or define block)
+- added search documentation on main page (seems noboby knows how it
+ works)
+ - add option for logging/debugger spawns fo better chrome ext debug
+
+
+## V1.0.17 (2016-3-3)
+
+Features:
 
 - Moved settings load to be done first thing when loading the extension: should create less potential problems when loading
 

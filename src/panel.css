@@ -1,0 +1,625 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+}
+
+body {
+    background-color: #eee;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+ul {
+    list-style-type: none;
+}
+
+#reload {
+    padding: 10px;
+    cursor: pointer;
+}
+
+#container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+#list {
+    position: absolute;
+    left: 0;
+    width: 200px;
+    top: 0;
+    bottom: 25px;
+    listy-style-type: none;
+    background-color: #eee;
+    overflow: auto;
+}
+
+#list li {
+    padding: 5px 10px;
+    border-bottom: 1px solid #e5e5e5;
+    cursor: pointer;
+    position: relative;
+    height: 30px;
+}
+
+#list li:hover {
+    background-color: rgba(56, 121, 217, 0.1);
+}
+
+#list li.active {
+    background-color: rgb(56, 121, 217);
+    color: white;
+}
+
+#list li span.visibility {
+    background-image: url(ShaderEditor/assets/check.svg);
+    background-size: contain;
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    bottom: 5px;
+}
+
+#list li span.name {
+    position: absolute;
+    left: 35px;
+    top: 5px;
+    right: 10px;
+    bottom: 5px;
+}
+
+#list li.hidden {
+    opacity: .25;
+}
+
+#editorContainer {
+    position: absolute;
+    left: 200px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #eee;
+}
+
+#vs-panel,
+#fs-panel {
+    transition: background-color 150ms ease-out
+}
+
+#vs-panel {
+    position: absolute;
+    left: 0;
+    right: 50%;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    width: 50%;
+}
+
+#fs-panel {
+    position: absolute;
+    left: 50%;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    width: 50%;
+}
+
+#vs-panel.fullscreen,
+#fs-panel.fullscreen {
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+#vsEditor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 25px;
+    height: calc( 100% - 25px);
+    width: 100%;
+}
+
+#fsEditor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 25px;
+    height: calc( 100% - 25px);
+    width: 100%;
+}
+
+.footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 25px;
+    right: 0;
+    border-left: 1px solid #a6a6a6;
+}
+
+.footer p {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 45px;
+    overflow: hidden;
+    padding: 3px 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.errorMessage {
+    background-color: #b60000;
+    color: white;
+    padding: 5px;
+}
+
+.warningMessage {
+    background-color: #ff8a00;
+    color: white;
+    padding: 5px;
+}
+
+#waiting {
+    display: none;
+    color: #404040;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#info {
+    color: #404040;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#info h1 {
+    margin-bottom: 1em;
+}
+
+#info p {
+    margin-bottom: 1em;
+    line-height: 1.4em
+}
+
+#info button {
+    margin-bottom: 1em;
+}
+
+#info a {
+    color: #4c9ed9;
+}
+
+#info a:hover {
+    color: #202020;
+}
+
+.fullscreen .go-fullscreen {
+    background-image: url(ShaderEditor/assets/fs_exit.svg);
+}
+
+
+.go-pick {
+    background-image: url(ShaderEditor/assets/ic_colorize_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 205px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-watch {
+    background-image: url(ShaderEditor/assets/ic_watch_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 185px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-screenshot {
+    background-image: url(ShaderEditor/assets/ic_camera_alt_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 165px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-record {
+    background-image: url(ShaderEditor/assets/ic_fiber_manual_record_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 145px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-benchmark {
+    background-image: url(ShaderEditor/assets/ic_timer_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 125px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-play {
+    background-image: url(ShaderEditor/assets/ic_play_arrow_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 105px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-slow {
+    background-image: url(ShaderEditor/assets/ic_slideshow_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 85px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-format {
+    background-image: url(ShaderEditor/assets/format.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 65px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-optimise {
+    background-image: url(ShaderEditor/assets/ic_flash_on_24px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 45px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+
+.go-preprocess {
+    background-image: url(ShaderEditor/assets/ic_vertical_align_bottom_18px.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 25px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.go-fullscreen {
+    background-image: url(ShaderEditor/assets/fs.svg);
+    width: 15px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-size: 15px 15px;
+    cursor: pointer;
+}
+
+.hide {
+    display: none;
+}
+
+.CodeMirror {
+    border: 1px solid #a6a6a6;
+    border-right: 1px solid transparent;
+    border-top: 1px solid transparent;
+}
+
+.CodeMirror-focused {
+    border: 1px solid #4c9ed9;
+    border-right: 1px solid #4c9ed9;
+    border-top: 1px solid #4c9ed9;
+}
+
+#log {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    display: visible;
+}
+
+.compiled {
+    background-color: #2fb600;
+    color: white;
+}
+
+.not-compiled {
+    background-color: #b60000;
+    color: white;
+}
+
+#settingsPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    padding: 30px;
+    display: none;
+}
+
+#settingsPanel h1 {
+    margin-bottom: 10px;
+}
+
+#settingsPanel input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+#toolbarContainer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 25px;
+    width: 200px;
+    background-color: #eee;
+}
+
+#toolbarContainer li {
+    width: 25px;
+    height: 25px;
+    float: left;
+}
+
+#toolbarContainer a {
+    width: 21px;
+    height: 21px;
+    margin: 2px;
+    display: block;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: contain;
+}
+
+#settingsButton {
+    background-image: url(ShaderEditor/assets/gears.svg);
+}
+
+#highlightButton {
+    background-image: url(ShaderEditor/assets/eye.svg);
+}
+
+.vertical #vs-panel {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: 100%;
+    height: 50%;
+}
+
+.vertical #fs-panel {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50%;
+    top: auto;
+    width: 100%;
+}
+
+#textures {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background-color: #eee;
+    overflow: auto;
+}
+
+#textures .textureElement {
+    width: 128px;
+    height: 128px;
+    margin: 10px 0 0 10px;
+    float: left;
+    position: relative;
+    border: 1px solid black;
+}
+
+#textures img {
+    width: 128px;
+    height: 128px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#textures .dropzone,
+#textures input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#tabs {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 30px;
+    background-color: #eee;
+    border-bottom: 1px solid #a6a6a6;
+}
+
+#tab-container {
+    position: absolute;
+    left: 0;
+    top: 30px;
+    right: 0;
+    bottom: 0;
+}
+
+#tabs li {
+    float: left;
+    height: 30px;
+    padding: 0 20px;
+    line-height: 30px;
+    cursor: pointer;
+    border: none;
+    border-bottom: 1px solid #a6a6a6;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px
+}
+
+#tabs li.active {
+    font-weight: bold;
+    border: 1px solid #a6a6a6;
+    border-bottom: 1px solid #eee;
+}
+
+.tab {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.tab.active {
+    display: block;
+}
+
+.tab-content {
+    padding: 20px;
+    line-height: 1.4em;
+}
+
+.tab-content h1 {
+    margin-bottom: 1em;
+}
+
+.tab-content label {
+    margin-left: .5em;
+}
+
+#textures {
+    display: none
+}
+
+.CodeMirror-focused .cm-matchhighlight {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVQI12NgYGBgkKzc8x9CMDAwAAAmhwSbidEoSQAAAABJRU5ErkJggg==);
+    background-position: bottom;
+    background-repeat: repeat-x;
+}
+
+.CodeMirror-selection-highlight-scrollbar {
+    background-color: lightblue
+}
+
+.ge_assing_marker {
+    margin-left: -10px;
+    color: var(--ui-highlight-color);
+}
+
+.ge_assing_marker_on {
+    margin-left: -10px;
+    color: red;
+}
+
+.ge_assing_marker:hover {
+    color: red;
+}
+
+
+.fork {
+  font-family: 'Permanent Marker', cursive;
+  font-variant:small-caps;
+  font-size: 180px;
+  -webkit-transform: skew(-15deg,-15deg);
+  padding-left: 80px;
+  
+  
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  -webkit-filter: drop-shadow(2px 2px 20px #ff0000);
+
+      -webkit-animation-duration: 4s;
+      -webkit-animation-name: changeShadow;
+      -webkit-animation-iteration-count: infinite;
+      -webkit-animation-direction: alternate;
+}
+
+@-webkit-keyframes changeShadow{
+  from {
+    background-image: -webkit-linear-gradient(#FFFFFF 0%,  #FFFFFF 100%);
+    -webkit-filter: drop-shadow(2px 2px 20px #ffffff);
+  }
+
+  to {
+    background-image: -webkit-linear-gradient(#FFFFF8 0%,  #FFF9F7 100%);
+    -webkit-filter: drop-shadow(2px 2px 20px #ff0000);
+  }
+}
