@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:chrome.google.com)",
+      "WebFetch(domain:chromewebstore.google.com)",
+      "WebSearch"
+    ]
+  }
+}
